@@ -53,6 +53,21 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->
+<dependency>
+    <groupId>jakarta.validation</groupId>
+    <artifactId>jakarta.validation-api</artifactId>
+    <version>3.1.1</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/nz.net.ultraq.thymeleaf/thymeleaf-layout-dialect -->
+<dependency>
+    <groupId>nz.net.ultraq.thymeleaf</groupId>
+    <artifactId>thymeleaf-layout-dialect</artifactId>
+    <version>3.4.0</version>
+</dependency>
+
 	</dependencies>
 
 	<build>
