@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "Citas")
@@ -35,8 +34,6 @@ public class Cita {
     @Enumerated(EnumType.STRING)
     private EstadoCita estado;
 
-    @OneToMany(mappedBy = "cita", cascade = CascadeType.ALL)
-    private List<Historial> historiales;
 
     public enum EstadoCita {
         Pendiente, Confirmada, Cancelada, Finalizada
@@ -98,11 +95,4 @@ public class Cita {
         this.estado = estado;
     }
 
-    public List<Historial> getHistoriales() {
-        return historiales;
-    }
-
-    public void setHistoriales(List<Historial> historiales) {
-        this.historiales = historiales;
-    }
 }

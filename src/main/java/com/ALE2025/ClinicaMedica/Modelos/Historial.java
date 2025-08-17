@@ -23,6 +23,8 @@ public class Historial {
     @JoinColumn(name = "especialidad_id", referencedColumnName = "id")
     private Especialidad especialidad;
 
+ 
+
     @NotNull(message = "La fecha de la cita es requerida")
     @Temporal(TemporalType.DATE)
     private Date fechaCita;
