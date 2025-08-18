@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title" th:text="'Rol - ' + ${action}">Rol</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container mt-5">
+        <h2 th:text="${action == 'create' ? 'Crear Rol' : 
+                      action == 'edit' ? 'Editar Rol' : 
+                      action == 'view' ? 'Ver Rol' : 
+                      action == 'delete' ? 'Eliminar Rol' : 'Rol'}"></h2>
+
+        <div class="card p-4">
+            <form th:action="@{${action == 'create' ? '/roles/create' : 
+                              action == 'edit' ? '/roles/edit' : 
+                              action == 'delete' ? '/roles/delete' : '#'}}" 
+                  th:object="${rol}" method="post">
+
+                <input type="hidden" th:if="${rol.id != null}" th:field="*{id}" />
+
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre del Rol</label>
+                    <input type="text" th:field="*{nombre}" id="nombre" class="form-control"
+                           th:attr="readonly=${action=='view' or action=='delete'}" />
+                    <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                </div>
+
+                <div th:if="${action != 'view'}" class="mb-3">
+                    <button type="submit" 
+                            th:text="${action == 'delete' ? 'Confirmar Eliminación' : 'Guardar'}" 
+                            class="btn" 
+                            th:classappend="${action == 'delete' ? 'btn-danger' : 'btn-primary'}"></button>
+                    <a th:href="@{/roles}" class="btn btn-secondary">Cancelar</a>
+                </div>
+
+                <div th:if="${action == 'view'}" class="mb-3">
+                    <a th:href="@{/roles}" class="btn btn-secondary">Regresar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

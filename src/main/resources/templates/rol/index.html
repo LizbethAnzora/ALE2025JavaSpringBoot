@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title">Listado de Roles</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div th:if="${msg != null}">
+        <script>
+            swal({
+                title: "Confirmación",
+                text: '[[ ${msg} ]]',
+                icon: "success"
+            });
+        </script>
+    </div>
+    <div th:if="${error != null}">
+        <script>
+            swal({
+                title: "Error",
+                text: '[[ ${error} ]]',
+                icon: "error"
+            });
+        </script>
+    </div>
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Listado de Roles</h2>
+            <a th:href="@{/roles/create}" class="btn btn-primary">Nuevo Rol</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="rol : ${roles.content}">
+                        <td th:text="${rol.id}"></td>
+                        <td th:text="${rol.nombre}"></td>
+                        <td class="d-flex justify-content-start">
+                            <a th:href="@{/roles/view/{id}(id=${rol.id})}" class="btn btn-info btn-sm me-2">Ver</a>
+                            <a th:href="@{/roles/edit/{id}(id=${rol.id})}" class="btn btn-warning btn-sm me-2">Editar</a>
+                            <a th:href="@{/roles/delete/{id}(id=${rol.id})}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${roles.totalElements == 0}">
+                        <td colspan="3" class="text-center">No hay roles registrados.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav th:if="${pageNumbers}">
+            <ul class="pagination justify-content-center">
+                <li th:each="pageNum : ${pageNumbers}" class="page-item"
+                    th:classappend="${pageNum == roles.number + 1} ? 'active'">
+                    <a class="page-link" th:href="@{/roles(page=${pageNum}, size=${roles.size})}" th:text="${pageNum}"></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</section>
+</body>
+</html>
