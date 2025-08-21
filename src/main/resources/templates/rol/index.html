@@ -4,69 +4,223 @@
       layout:decorate="~{layouts/_mainLayout}">
 <head>
     <title layout:fragment="title">Listado de Roles</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Estilos personalizados para la paleta de colores */
+        .container-fluid {
+            background-color: #1a233b; /* Color de fondo del sidebar */
+            color: #ffffff; /* Color de texto blanco */
+        }
+        .card-dark {
+            background-color: #1a233b;
+            color: #ffffff;
+            border: none;
+        }
+        .card-header {
+            border-bottom: 1px solid #33405c; /* Separador sutil */
+        }
+        .table-dark {
+            background-color: #33405c; /* Fondo de la cabecera de la tabla */
+            color: #ffffff;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #293145; /* Color para filas impares */
+        }
+        .table-hover tbody tr:hover {
+            background-color: #3e4b65; /* Efecto hover */
+            cursor: pointer;
+        }
+        /* Estilos para botones con iconos y efectos */
+        .btn-custom {
+            background-color: #6a6a9b; /* Color de botón base */
+            border-color: #6a6a9b;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            white-space: nowrap; /* Evita que el texto del botón se rompa en varias líneas */
+        }
+        .btn-custom:hover {
+            background-color: #535380;
+            border-color: #535380;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-view {
+            background-color: #4CAF50; /* Verde para 'Ver' */
+            border-color: #4CAF50;
+            color: white;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-view:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        .btn-edit {
+            background-color: #FFC107; /* Amarillo para 'Editar' */
+            border-color: #FFC107;
+            color: black;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-edit:hover {
+            background-color: #e0b400;
+            transform: scale(1.05);
+        }
+        .btn-delete {
+            background-color: #F44336; /* Rojo para 'Eliminar' */
+            border-color: #F44336;
+            color: white;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-delete:hover {
+            background-color: #d32f2f;
+            transform: scale(1.05);
+        }
+        .pagination .page-item .page-link {
+            background-color: #1a233b;
+            color: #ffffff;
+            border: 1px solid #33405c;
+            transition: background-color 0.3s ease;
+        }
+        .pagination .page-item .page-link:hover {
+            background-color: #3e4b65;
+            color: #ffffff;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #6a6a9b;
+            border-color: #6a6a9b;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
 <section layout:fragment="content">
     <div th:if="${msg != null}">
         <script>
-            swal({
+            Swal.fire({
                 title: "Confirmación",
                 text: '[[ ${msg} ]]',
-                icon: "success"
+                icon: "success",
+                confirmButtonText: "Aceptar"
             });
         </script>
     </div>
     <div th:if="${error != null}">
         <script>
-            swal({
+            Swal.fire({
                 title: "Error",
                 text: '[[ ${error} ]]',
-                icon: "error"
+                icon: "error",
+                confirmButtonText: "Aceptar"
             });
         </script>
     </div>
 
     <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Listado de Roles</h2>
-            <a th:href="@{/roles/create}" class="btn btn-primary">Nuevo Rol</a>
-        </div>
+        <div class="card card-dark shadow-lg">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-user-tag me-2"></i>Listado de Roles</h4>
+                <a th:href="@{/roles/create}" class="btn btn-custom">
+                    <i class="fas fa-plus-circle me-2"></i>Nuevo Rol
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead class="table-dark">
+                        <tr>
+                            <th><i class="fas fa-signature me-2"></i>Nombre</th>
+                            <th><i class="fas fa-cogs me-2"></i>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="rol : ${roles.content}">
+                            <td th:text="${rol.nombre}"></td>
+                            <td class="d-flex justify-content-start">
+                                <a th:href="@{/roles/view/{id}(id=${rol.id})}" class="btn btn-view btn-sm me-2 d-flex align-items-center">
+                                    <i class="fas fa-eye me-1"></i> Ver
+                                </a>
+                                <a th:href="@{/roles/edit/{id}(id=${rol.id})}" class="btn btn-edit btn-sm me-2 d-flex align-items-center">
+                                    <i class="fas fa-pen me-1"></i> Editar
+                                </a>
+                                <a th:href="@{/roles/delete/{id}(id=${rol.id})}" onclick="return confirmarEliminacion(this.href);" class="btn btn-delete btn-sm d-flex align-items-center">
+                                    <i class="fas fa-trash-alt me-1"></i> Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${roles.totalElements == 0}">
+                            <td colspan="2" class="text-center text-muted">No hay roles registrados.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="rol : ${roles.content}">
-                        <td th:text="${rol.id}"></td>
-                        <td th:text="${rol.nombre}"></td>
-                        <td class="d-flex justify-content-start">
-                            <a th:href="@{/roles/view/{id}(id=${rol.id})}" class="btn btn-info btn-sm me-2">Ver</a>
-                            <a th:href="@{/roles/edit/{id}(id=${rol.id})}" class="btn btn-warning btn-sm me-2">Editar</a>
-                            <a th:href="@{/roles/delete/{id}(id=${rol.id})}" class="btn btn-danger btn-sm">Eliminar</a>
-                        </td>
-                    </tr>
-                    <tr th:if="${roles.totalElements == 0}">
-                        <td colspan="3" class="text-center">No hay roles registrados.</td>
-                    </tr>
-                </tbody>
-            </table>
+                <nav th:if="${pageNumbers}">
+                    <ul class="pagination justify-content-center">
+                        <li th:each="pageNum : ${pageNumbers}" class="page-item"
+                            th:classappend="${pageNum == roles.number + 1} ? 'active'">
+                            <a class="page-link" th:href="@{/roles(page=${pageNum}, size=${roles.size})}" th:text="${pageNum}"></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
-
-        <nav th:if="${pageNumbers}">
-            <ul class="pagination justify-content-center">
-                <li th:each="pageNum : ${pageNumbers}" class="page-item"
-                    th:classappend="${pageNum == roles.number + 1} ? 'active'">
-                    <a class="page-link" th:href="@{/roles(page=${pageNum}, size=${roles.size})}" th:text="${pageNum}"></a>
-                </li>
-            </ul>
-        </nav>
     </div>
 </section>
+
+<script>
+    // Función para mostrar la alerta de confirmación
+    function confirmarEliminacion(url) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#F44336',
+            cancelButtonColor: '#3e4b65',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'swal2-dark',
+                confirmButton: 'swal2-custom-button-delete',
+                cancelButton: 'swal2-custom-button-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirige solo si el usuario confirma
+                window.location.href = url;
+            }
+        });
+        return false; // Previene el comportamiento por defecto del enlace
+    }
+</script>
+
+<style>
+    /* Estilos adicionales para los popups de SweetAlert */
+    .swal2-dark {
+        background-color: #1a233b !important;
+        color: #ffffff !important;
+        border: 1px solid #33405c;
+    }
+    .swal2-title {
+        color: #ffffff !important;
+    }
+    .swal2-content {
+        color: #c0c0c0 !important;
+    }
+    .swal2-icon {
+        border-color: #c0c0c0 !important;
+    }
+    .swal2-confirm.swal2-custom-button-delete {
+        background-color: #F44336 !important;
+        color: #ffffff !important;
+    }
+    .swal2-cancel.swal2-custom-button-cancel {
+        background-color: #3e4b65 !important;
+        color: #ffffff !important;
+    }
+</style>
 </body>
 </html>

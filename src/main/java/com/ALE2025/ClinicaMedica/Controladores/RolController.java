@@ -3,6 +3,7 @@ package com.ALE2025.ClinicaMedica.Controladores;
 import java.util.*;
 import java.util.stream.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -82,7 +83,13 @@ public class RolController {
             model.addAttribute("action", "create");
             return "rol/mant";
         }
-        rolService.crearOEditar(rol);
+        try {
+            rolService.crearOEditar(rol);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("error", "El nombre de rol ya existe. Por favor, ingrese un nombre diferente.");
+            model.addAttribute("action", "create");
+            return "rol/mant";
+        }
         redirect.addFlashAttribute("msg", "Rol creado correctamente");
         return "redirect:/roles";
     }
@@ -94,7 +101,13 @@ public class RolController {
             model.addAttribute("action", "edit");
             return "rol/mant";
         }
-        rolService.crearOEditar(rol);
+        try {
+            rolService.crearOEditar(rol);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("error", "El nombre de rol ya existe. Por favor, ingrese un nombre diferente.");
+            model.addAttribute("action", "edit");
+            return "rol/mant";
+        }
         redirect.addFlashAttribute("msg", "Rol actualizado correctamente");
         return "redirect:/roles";
     }
