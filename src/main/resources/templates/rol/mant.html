@@ -1,207 +1,82 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/_mainLayout}">
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/_mainLayout}">
 <head>
     <title layout:fragment="title" th:text="'Rol - ' + ${action}">Rol</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        /* Estilos personalizados para la paleta de colores */
-        .container-fluid {
-            background-color: #1a233b; /* Color de fondo del sidebar */
-            color: #ffffff; /* Color de texto blanco */
-        }
-        .card-dark {
-            background-color: #1a233b;
-            color: #ffffff;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Sombra para profundidad */
-        }
-        .form-control-dark {
-            background-color: #293145;
-            color: #ffffff;
+    <style layout:fragment="style-add">
+        .swal2-dark {
+            background-color: #1a233b !important;
+            color: #ffffff !important;
             border: 1px solid #33405c;
         }
-        .form-control-dark:focus {
-            background-color: #3e4b65;
-            color: #ffffff;
-            border-color: #6a6a9b;
-            box-shadow: 0 0 0 0.25rem rgba(106, 106, 155, 0.25);
+        .swal2-title {
+            color: #ffffff !important;
         }
-        /* Estilos para los botones */
-        .btn-custom {
-            transition: all 0.3s ease;
+        .swal2-content {
+            color: #c0c0c0 !important;
         }
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .swal2-icon {
+            border-color: #c0c0c0 !important;
         }
-        .btn-save {
-            background-color: #6a6a9b; /* Color principal */
-            border-color: #6a6a9b;
-            color: #ffffff;
+        .swal2-confirm.swal2-custom-button-delete {
+            background-color: #F44336 !important;
+            color: #ffffff !important;
         }
-        .btn-save:hover {
-            background-color: #535380;
-            border-color: #535380;
+        .swal2-cancel.swal2-custom-button-cancel {
+            background-color: #3e4b65 !important;
+            color: #ffffff !important;
         }
-        .btn-danger-custom {
-            background-color: #F44336; /* Rojo para eliminar */
-            border-color: #F44336;
-            color: #ffffff;
-        }
-        .btn-danger-custom:hover {
-            background-color: #d32f2f;
-            border-color: #d32f2f;
-        }
-        .btn-secondary-custom {
-            background-color: #3e4b65; /* Gris oscuro para cancelar/regresar */
-            border-color: #3e4b65;
-            color: #ffffff;
-        }
-        .btn-secondary-custom:hover {
-            background-color: #556680;
-            border-color: #556680;
-        }
-        .text-danger {
-            color: #FF6B6B !important; /* Rojo claro para errores */
+        .swal2-confirm.swal2-custom-button-save {
+            background-color: #6a6a9b !important;
+            color: #ffffff !important;
         }
     </style>
 </head>
 <body>
-<section layout:fragment="content">
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Script para mostrar la alerta de SweetAlert si el controlador envía un mensaje de error
-            const error = '[[${error}]]';
-            if (error && error.trim() !== '') {
-                Swal.fire({
-                    title: "Error",
-                    text: error,
-                    icon: "error",
-                    confirmButtonText: "Aceptar",
-                    customClass: {
-                        popup: 'swal2-dark',
-                        confirmButton: 'swal2-custom-button'
-                    }
-                });
-            }
-
-            // Script para la confirmación de guardado o eliminación con SweetAlert
-            const form = document.getElementById('formRol');
-            if (form) {
-                form.addEventListener('submit', function(event) {
-                    const action = form.getAttribute('th:action');
-                    const isCreateOrEdit = action.includes('create') || action.includes('edit');
-                    
-                    if (isCreateOrEdit) {
-                        event.preventDefault(); // Detiene el envío del formulario para la validación
-                        
-                        const nombreInput = document.getElementById('nombre');
-                        
-                        // Validación de campo vacío en el cliente
-                        if (nombreInput.value.trim() === '') {
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'El nombre del rol no puede estar vacío.',
-                                icon: 'error',
-                                confirmButtonText: 'Aceptar',
-                                customClass: {
-                                    popup: 'swal2-dark',
-                                    confirmButton: 'swal2-custom-button'
-                                }
-                            });
-                            return false;
-                        }
-
-                        Swal.fire({
-                            title: '¿Confirmar Guardado?',
-                            text: "Se guardarán los cambios.",
-                            icon: 'info',
-                            showCancelButton: true,
-                            confirmButtonColor: '#6a6a9b',
-                            cancelButtonColor: '#3e4b65',
-                            confirmButtonText: 'Sí, guardar',
-                            cancelButtonText: 'Cancelar',
-                            customClass: {
-                                popup: 'swal2-dark',
-                                confirmButton: 'swal2-custom-button',
-                                cancelButton: 'swal2-custom-button'
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Envía el formulario si el usuario confirma
-                                form.submit();
-                            }
-                        });
-
-                    } else if (action.includes('delete')) {
-                        event.preventDefault(); // Detiene el envío para la confirmación de eliminación
-                        Swal.fire({
-                            title: '¿Confirmar Eliminación?',
-                            text: "Esta acción no se puede deshacer.",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#F44336',
-                            cancelButtonColor: '#3e4b65',
-                            confirmButtonText: 'Sí, eliminar',
-                            cancelButtonText: 'Cancelar',
-                            customClass: {
-                                popup: 'swal2-dark',
-                                confirmButton: 'swal2-custom-button',
-                                cancelButton: 'swal2-custom-button'
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                form.submit();
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    </script>
-    
-    <div class="container mt-5">
-        <div class="card card-dark p-4">
-            <div class="card-header border-0 pb-0">
-                <h4 class="mb-0 text-white"
+<section layout:fragment="content" class="bg-[#1a233b] min-h-screen py-12">
+    <div class="container mx-auto px-4 mt-5">
+        <div class="bg-[#1a233b] text-white shadow-xl rounded-xl border border-transparent p-6 md:p-8">
+            <div class="border-b border-transparent pb-0 mb-6">
+                <h4 class="mb-0 text-white font-bold text-2xl"
                     th:text="${action == 'create' ? 'Crear Nuevo Rol' :
                              action == 'edit' ? 'Editar Rol' :
                              action == 'view' ? 'Detalles del Rol' :
                              action == 'delete' ? 'Confirmar Eliminación' : 'Rol'}">
                 </h4>
             </div>
+
             <div class="card-body">
                 <form id="formRol" th:action="@{${action == 'create' ? '/roles/create' :
-                                     action == 'edit' ? '/roles/edit' :
-                                     action == 'delete' ? '/roles/delete' : '#'}}"
+                                                 action == 'edit' ? '/roles/edit' :
+                                                 action == 'delete' ? '/roles/delete' : '#'}}"
                       th:object="${rol}" method="post">
 
                     <input type="hidden" th:if="${rol.id != null}" th:field="*{id}" />
 
                     <div class="mb-4">
-                        <label for="nombre" class="form-label">Nombre del Rol</label>
-                        <input type="text" th:field="*{nombre}" id="nombre" class="form-control form-control-dark"
+                        <label for="nombre" class="block text-white mb-2">Nombre del Rol</label>
+                        <input type="text" th:field="*{nombre}" id="nombre"
+                               class="w-full bg-[#293145] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
                                th:attr="readonly=${action=='view' or action=='delete'}" />
-                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                        <div class="text-[#FF6B6B] mt-1 text-sm" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                     </div>
 
-                    <div th:if="${action != 'view'}" class="mt-4">
-                        <button type="submit" class="btn btn-custom me-2"
-                                th:classappend="${action == 'delete' ? 'btn-danger-custom' : 'btn-save'}">
-                            <span th:if="${action == 'delete'}"><i class="fas fa-trash-alt me-2"></i> Confirmar Eliminación</span>
-                            <span th:if="${action != 'delete'}"><i class="fas fa-save me-2"></i> Guardar</span>
+                    <div th:if="${action != 'view'}" class="mt-8 flex space-x-4">
+                        <button type="submit" class="font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                                th:classappend="${action == 'delete' ? 'bg-[#F44336] hover:bg-[#d32f2f] text-white' : 'bg-[#6a6a9b] hover:bg-[#535380] text-white'}">
+                            <span th:if="${action == 'delete'}"><i class="fas fa-trash-alt mr-2"></i> Confirmar Eliminación</span>
+                            <span th:if="${action != 'delete'}"><i class="fas fa-save mr-2"></i> Guardar</span>
                         </button>
-                        <a th:href="@{/roles}" class="btn btn-secondary-custom btn-custom">
-                            <i class="fas fa-times me-2"></i> Cancelar
+                        <a th:href="@{/roles}" class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg">
+                            <i class="fas fa-times mr-2"></i> Cancelar
                         </a>
                     </div>
 
-                    <div th:if="${action == 'view'}" class="mt-4">
-                        <a th:href="@{/roles}" class="btn btn-secondary-custom btn-custom">
-                            <i class="fas fa-arrow-left me-2"></i> Regresar
+                    <div th:if="${action == 'view'}" class="mt-8">
+                        <a th:href="@{/roles}" class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg">
+                            <i class="fas fa-arrow-left mr-2"></i> Regresar
                         </a>
                     </div>
                 </form>
@@ -209,5 +84,87 @@
         </div>
     </div>
 </section>
+
+<script layout:fragment="script-add">
+    document.addEventListener('DOMContentLoaded', function() {
+        const error = '[[${error}]]';
+        if (error && error.trim() !== '') {
+            Swal.fire({
+                title: "Error",
+                text: error,
+                icon: "error",
+                confirmButtonText: "Aceptar",
+                customClass: {
+                    popup: 'swal2-dark',
+                    confirmButton: 'swal2-custom-button-delete'
+                }
+            });
+        }
+        const form = document.getElementById('formRol');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const action = form.getAttribute('th:action');
+                const isCreateOrEdit = action.includes('create') || action.includes('edit');
+                if (isCreateOrEdit) {
+                    event.preventDefault();
+                    const nombreInput = document.getElementById('nombre');
+                    if (nombreInput.value.trim() === '') {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'El nombre del rol no puede estar vacío.',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar',
+                            customClass: {
+                                popup: 'swal2-dark',
+                                confirmButton: 'swal2-custom-button-delete'
+                            }
+                        });
+                        return false;
+                    }
+                    Swal.fire({
+                        title: '¿Confirmar Guardado?',
+                        text: "Se guardarán los cambios.",
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonColor: '#6a6a9b',
+                        cancelButtonColor: '#3e4b65',
+                        confirmButtonText: 'Sí, guardar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            popup: 'swal2-dark',
+                            confirmButton: 'swal2-custom-button-save',
+                            cancelButton: 'swal2-custom-button-cancel'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                } else if (action.includes('delete')) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '¿Confirmar Eliminación?',
+                        text: "Esta acción no se puede deshacer.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#F44336',
+                        cancelButtonColor: '#3e4b65',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            popup: 'swal2-dark',
+                            confirmButton: 'swal2-custom-button-delete',
+                            cancelButton: 'swal2-custom-button-cancel'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
