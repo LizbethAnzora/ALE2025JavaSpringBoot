@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title layout:title-pattern="$CONTENT_TITLE"></title>
 
-    <link rel="icon" type="image/x-icon" th:href="@{/assets/img/7fac475e1a4af4071f103cd3beb8cebb.jpg}" />
+    <link rel="icon" type="image/x-icon" th:href="@{/assets/img/7fac475e1a4af4071f103cd3beb8cebb.jpg?v=1.0}" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css?v=1.0" />
+    <script src="https://cdn.tailwindcss.com?v=1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11?v=1.0"></script>
 
     <th:block layout:fragment="style-add"></th:block>
 
     <style>
+      body {
+        overflow-x: hidden; /* Evita la barra de desplazamiento horizontal */
+      }
       .sidebar {
         width: 280px;
         transition: width 0.3s ease-in-out;
@@ -50,10 +53,8 @@
         transition: max-height 0.3s ease-out;
       }
       .sub-menu.open {
-        max-height: 500px; /* Suficiente para mostrar el menú completo */
+        max-height: 500px;
         transition: max-height 0.5s ease-in;
-        /* Se agregó overflow-y-scroll para habilitar el desplazamiento */
-        overflow-y: scroll;
       }
       .rotate-90 {
         transform: rotate(90deg);
@@ -76,18 +77,18 @@
       .dropdown-menu.active {
         display: block;
       }
-      /* Se agregó un estilo para el contenedor del submenú para permitir el scroll
-       * sin afectar la vista principal. */
-      .scrollable-menu {
-        max-height: calc(100vh - 200px); /* Ajusta este valor si es necesario */
-        overflow-y: auto;
+      
+      /* Oculta el menú de entidades y el texto de los ítems del menú cuando el sidebar está colapsado */
+      .sidebar.collapsed .scrollable-menu,
+      .sidebar.collapsed .menu-item-text {
+        display: none;
       }
     </style>
   </head>
   <body class="bg-gray-900 text-gray-100 font-sans leading-normal tracking-normal min-h-screen flex">
     <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full bg-gray-800 p-4 pt-6 shadow-2xl z-50">
       <div class="flex flex-col items-center mb-6 logo-container">
-        <img th:src="@{/assets/img/7fac475e1a4af4071f103cd3beb8cebb.jpg}" alt="" class="h-20 w-20 rounded-full transition-all duration-300 logo-img" />
+        <img th:src="@{/assets/img/7fac475e1a4af4071f103cd3beb8cebb.jpg?v=1.0}" alt="" class="h-20 w-20 rounded-full transition-all duration-300 logo-img" />
         <div class="text-white font-bold text-xl text-logo logo-text mt-2">Clínica Medica</div>
       </div>
       <nav class="flex-1 overflow-y-auto">
@@ -106,7 +107,7 @@
               </div>
               <i class="fas fa-chevron-right text-sm transition-transform duration-300 transform" id="toggleIcon"></i>
             </div>
-            <div class="scrollable-menu mt-2 pl-8 space-y-2 bg-gray-700 rounded-lg">
+            <div id="subMenuContainer" class="sub-menu mt-2 pl-8 space-y-2 bg-gray-700 rounded-lg scrollable-menu">
               <ul id="subMenu">
                 <li>
                   <a th:href="@{/roles}" class="block py-2 px-3 text-gray-400 hover:bg-gray-600 hover:text-white rounded-lg transition-colors">
@@ -179,9 +180,6 @@
             <span class="hidden md:inline font-medium">Perfil</span>
           </a>
           <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-xl z-50 dropdown-menu">
-            <a href="/login" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200">
-              <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
-            </a>
             <a href="/logout" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200">
               <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
             </a>
@@ -204,18 +202,29 @@
       const mainContent = document.getElementById('mainContent');
       const sidebarToggle = document.getElementById('sidebarToggle');
       const menuToggle = document.getElementById('menuToggle');
-      const subMenu = document.getElementById('subMenu');
+      const subMenuContainer = document.getElementById('subMenuContainer');
       const toggleIcon = document.getElementById('toggleIcon');
       const profileDropdownToggle = document.getElementById('profileDropdownToggle');
       const profileDropdown = document.getElementById('profileDropdown');
 
+      // Se agregó una función para cerrar el submenú cuando el sidebar se contrae
+      const closeSubMenu = () => {
+        if (subMenuContainer.classList.contains('open')) {
+          subMenuContainer.classList.remove('open');
+          toggleIcon.classList.remove('rotate-90');
+        }
+      };
+
+      // Se modificó el evento de click para el sidebar
       sidebarToggle.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
         mainContent.classList.toggle('expanded');
+        closeSubMenu(); // Cierra el submenú al colapsar el sidebar
       });
 
+      // Se ajustó el evento de click para el submenú para que funcione siempre
       menuToggle.addEventListener('click', () => {
-        subMenu.classList.toggle('open');
+        subMenuContainer.classList.toggle('open');
         toggleIcon.classList.toggle('rotate-90');
       });
 
