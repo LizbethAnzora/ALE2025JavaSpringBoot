@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title">Listado de Pacientes</title>
+</head>
+<body>
+<section layout:fragment="content" class="bg-gray-900 min-h-screen py-12">
+    <div th:if="${msg != null}">
+        <script>
+            Swal.fire({
+                title: "Éxito",
+                text: '[[ ${msg} ]]',
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full'
+                }
+            });
+        </script>
+    </div>
+    <div th:if="${error != null}">
+        <script>
+            Swal.fire({
+                title: "Error",
+                text: '[[ ${error} ]]',
+                icon: "error",
+                confirmButtonText: "Aceptar",
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full'
+                }
+            });
+        </script>
+    </div>
+    <div class="container mx-auto px-4 max-w-7xl">
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <h4 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-hospital-user text-indigo-400 mr-3"></i>
+                    Gestión de Pacientes
+                </h4>
+                <a th:href="@{/pacientes/create}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-plus-circle mr-2"></i>Nuevo Paciente
+                </a>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg shadow-inner">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="text-xs text-gray-100 uppercase bg-gray-700">
+                    <tr>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-id-card mr-2"></i>Nombre</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-user-alt mr-2"></i>Apellido</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-phone mr-2"></i>Teléfono</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-calendar mr-2"></i>Fecha Nacimiento</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-id-card-alt mr-2"></i>DUI</th>
+                        <th scope="col" class="py-3 px-6 text-center"><i class="fas fa-cogs mr-2"></i>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="paciente : ${pacientes.content}" class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition duration-150 ease-in-out">
+                        <td th:text="${paciente.nombre}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${paciente.apellido}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${paciente.telefono}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${#dates.format(paciente.fechaNacimiento, 'dd-MM-yyyy')}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${paciente.DUI}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="inline-flex space-x-2">
+                                <a th:href="@{/pacientes/view/{id}(id=${paciente.id})}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-eye mr-2"></i>Ver
+                                </a>
+                                <a th:href="@{/pacientes/edit/{id}(id=${paciente.id})}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-pen mr-2"></i>Editar
+                                </a>
+                                <a th:href="@{/pacientes/delete/{id}(id=${paciente.id})}" onclick="return confirmarEliminacion(this.href);" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${pacientes.totalElements == 0}">
+                        <td colspan="6" class="py-6 px-6 text-center text-gray-500 font-medium">No hay pacientes registrados.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav th:if="${pageNumbers}" class="mt-8">
+                <ul class="flex justify-center space-x-2">
+                    <li th:each="pageNum : ${pageNumbers}"
+                        class="page-item"
+                        th:classappend="${pageNum == pacientes.number + 1} ? 'bg-indigo-600 text-white rounded-full' : 'bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600'">
+                        <a class="py-2 px-4 block transition duration-150" th:href="@{/pacientes(page=${pageNum}, size=${pacientes.size})}" th:text="${pageNum}"></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<script layout:fragment="script-add">
+    function confirmarEliminacion(url) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#4b5563',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'bg-gray-800 text-white',
+                confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full',
+                cancelButton: 'bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-full'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+        return false;
+    }
+</script>
+</body>
+</html>

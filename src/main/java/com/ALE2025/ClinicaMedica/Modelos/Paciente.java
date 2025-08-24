@@ -1,37 +1,44 @@
 package com.ALE2025.ClinicaMedica.Modelos;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
+
 import java.util.Date;
-import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "Pacientes")
 public class Paciente {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank(message = "El nombre es requerido")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     private String nombre;
 
     @NotBlank(message = "El apellido es requerido")
+    @Size(min = 2, max = 100, message = "El apellido debe tener entre 2 y 100 caracteres")
     private String apellido;
 
+    @Size(max = 20, message = "El teléfono no puede tener más de 20 caracteres")
     private String telefono;
 
-    @Temporal(TemporalType.DATE)
+   @DateTimeFormat(pattern = "yyyy-MM-dd")
+@NotNull
+@Past
+    @NotNull(message = "La fecha de nacimiento es requerida")
+    @Past(message = "La fecha de nacimiento debe ser en el pasado")
     private Date fechaNacimiento;
 
     @NotBlank(message = "El DUI es requerido")
-    private String dui;
+    @Size(min = 10, max = 10, message = "El DUI debe tener 10 caracteres")
+    @Column(unique = true)
+    private String DUI;
 
-    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
-    private List<Cita> citas;
-
-    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
-    private List<Historial> historiales;
-
+    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -72,27 +79,11 @@ public class Paciente {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public String getDui() {
-        return dui;
+    public String getDUI() {
+        return DUI;
     }
 
-    public void setDui(String dui) {
-        this.dui = dui;
-    }
-
-    public List<Cita> getCitas() {
-        return citas;
-    }
-
-    public void setCitas(List<Cita> citas) {
-        this.citas = citas;
-    }
-
-    public List<Historial> getHistoriales() {
-        return historiales;
-    }
-
-    public void setHistoriales(List<Historial> historiales) {
-        this.historiales = historiales;
+    public void setDUI(String DUI) {
+        this.DUI = DUI;
     }
 }
