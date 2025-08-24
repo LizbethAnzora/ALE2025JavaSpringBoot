@@ -8,11 +8,11 @@
         <version>3.5.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.esfe</groupId>
-    <artifactId>Asistencia</artifactId>
+    <groupId>com.ALE2025</groupId>
+    <artifactId>ClinicaMedica</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Asistencia</name>
-    <description>Demo project for Spring Boot</description>
+    <name>ClinicaMedica</name>
+    <description>Demo project for Spring Boot ClinicaMedica</description>
     <url/>
     <licenses>
         <license/>
@@ -90,5 +90,3 @@
 
 
 </project>
-
-

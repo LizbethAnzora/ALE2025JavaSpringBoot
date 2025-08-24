@@ -3,6 +3,8 @@ package com.ALE2025.ClinicaMedica.Modelos;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "Usuarios")
@@ -12,9 +14,11 @@ public class Usuario {
     private Integer id;
 
     @NotBlank(message = "El nombre es requerido")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     private String nombre;
 
     @NotBlank(message = "La contraseña es requerida")
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String contraseña;
 
     @NotBlank(message = "El correo electrónico es requerido")
@@ -22,14 +26,18 @@ public class Usuario {
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('activo', 'inactivo')")
+    @NotNull(message = "El estado es requerido")
     private EstadoUsuario estado;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "rol_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "rol_id", nullable = false)
+    @NotNull(message = "El rol es requerido")
     private Rol rol;
 
     public enum EstadoUsuario {
-        activo, inactivo
+        activo,
+        inactivo
     }
 
     public Integer getId() {

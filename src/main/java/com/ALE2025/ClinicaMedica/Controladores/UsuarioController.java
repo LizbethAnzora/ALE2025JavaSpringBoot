@@ -1,24 +1,21 @@
 package com.ALE2025.ClinicaMedica.Controladores;
 
-import com.ALE2025.ClinicaMedica.Modelos.Rol;
-import com.ALE2025.ClinicaMedica.Modelos.Usuario;
-import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IRolService;
-import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IUsuarioService;
-import jakarta.validation.Valid;
+import java.util.*;
+import java.util.stream.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import com.ALE2025.ClinicaMedica.Modelos.Usuario;
+import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IUsuarioService;
+import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IRolService; // Necesario para obtener la lista de roles
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -28,96 +25,108 @@ public class UsuarioController {
     private IUsuarioService usuarioService;
 
     @Autowired
-    private IRolService rolService;
+    private IRolService rolService; // Inyectamos el servicio de roles para el dropdown
 
     @GetMapping
-    public String listar(Model model,
-                         @RequestParam(defaultValue = "0") int page,
-                         @RequestParam(defaultValue = "5") int size,
-                         @RequestParam(required = false) String keyword) {
+    public String index(Model model,
+                        @RequestParam("page") Optional<Integer> page,
+                        @RequestParam("size") Optional<Integer> size) {
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Usuario> usuarios;
+        int currentPage = page.orElse(1) - 1;
+        int pageSize = size.orElse(5);
+        Pageable pageable = PageRequest.of(currentPage, pageSize);
 
-        if (keyword != null && !keyword.isEmpty()) {
-            usuarios = usuarioService.buscarPorNombreOEmailPaginado(keyword, pageable);
-        } else {
-            usuarios = usuarioService.buscarTodosPaginados(pageable);
-        }
-
+        Page<Usuario> usuarios = usuarioService.buscarTodosPaginados(pageable);
         model.addAttribute("usuarios", usuarios);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("pageNumbers", IntStream.rangeClosed(0, usuarios.getTotalPages() - 1).boxed().collect(Collectors.toList()));
+
+        int totalPages = usuarios.getTotalPages();
+        if (totalPages > 0) {
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed().collect(Collectors.toList());
+            model.addAttribute("pageNumbers", pageNumbers);
+        }
 
         return "usuario/index";
     }
 
     @GetMapping("/create")
-    public String crear(Model model) {
+    public String create(Model model) {
         model.addAttribute("usuario", new Usuario());
+        model.addAttribute("roles", rolService.obtenerTodos());
         model.addAttribute("action", "create");
-        List<Rol> roles = rolService.obtenerTodos();
-        model.addAttribute("roles", roles);
+        return "usuario/mant";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable Integer id, Model model) {
+        Usuario usuario = usuarioService.buscarPorId(id).orElseThrow();
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("roles", rolService.obtenerTodos());
+        model.addAttribute("action", "edit");
+        return "usuario/mant";
+    }
+
+    @GetMapping("/view/{id}")
+    public String view(@PathVariable Integer id, Model model) {
+        Usuario usuario = usuarioService.buscarPorId(id).orElseThrow();
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("roles", rolService.obtenerTodos());
+        model.addAttribute("action", "view");
+        return "usuario/mant";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteConfirm(@PathVariable Integer id, Model model) {
+        Usuario usuario = usuarioService.buscarPorId(id).orElseThrow();
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("action", "delete");
         return "usuario/mant";
     }
 
     @PostMapping("/create")
-    public String guardar(@Valid Usuario usuario, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    public String saveNuevo(@Valid @ModelAttribute Usuario usuario, BindingResult result,
+                            RedirectAttributes redirect, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("action", "create");
             model.addAttribute("roles", rolService.obtenerTodos());
             return "usuario/mant";
         }
-        usuarioService.crearOEditar(usuario);
-        redirectAttributes.addFlashAttribute("msg", "Usuario guardado exitosamente");
-        return "redirect:/usuarios";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String editar(@PathVariable Integer id, Model model) {
-        Optional<Usuario> usuario = usuarioService.buscarPorId(id);
-        if (usuario.isPresent()) {
-            model.addAttribute("usuario", usuario.get());
-            model.addAttribute("action", "edit");
-            List<Rol> roles = rolService.obtenerTodos();
-            model.addAttribute("roles", roles);
+        try {
+            usuarioService.crearOEditar(usuario);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("error", "Ya existe un usuario con ese email. Por favor, ingrese un correo diferente.");
+            model.addAttribute("action", "create");
+            model.addAttribute("roles", rolService.obtenerTodos());
             return "usuario/mant";
         }
+        redirect.addFlashAttribute("msg", "Usuario creado correctamente");
         return "redirect:/usuarios";
     }
 
     @PostMapping("/edit")
-    public String actualizar(@Valid Usuario usuario, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    public String saveEditado(@Valid @ModelAttribute Usuario usuario, BindingResult result,
+                              RedirectAttributes redirect, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("action", "edit");
             model.addAttribute("roles", rolService.obtenerTodos());
             return "usuario/mant";
         }
-        usuarioService.crearOEditar(usuario);
-        redirectAttributes.addFlashAttribute("msg", "Usuario actualizado exitosamente");
-        return "redirect:/usuarios";
-    }
-
-    @GetMapping("/view/{id}")
-    public String ver(@PathVariable Integer id, Model model) {
-        Optional<Usuario> usuario = usuarioService.buscarPorId(id);
-        if (usuario.isPresent()) {
-            model.addAttribute("usuario", usuario.get());
-            model.addAttribute("action", "view");
+        try {
+            usuarioService.crearOEditar(usuario);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("error", "Ya existe un usuario con ese email. Por favor, ingrese un correo diferente.");
+            model.addAttribute("action", "edit");
+            model.addAttribute("roles", rolService.obtenerTodos());
             return "usuario/mant";
         }
+        redirect.addFlashAttribute("msg", "Usuario actualizado correctamente");
         return "redirect:/usuarios";
     }
 
-    @GetMapping("/delete/{id}")
-    public String eliminar(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
-        try {
-            usuarioService.eliminarPorId(id);
-            redirectAttributes.addFlashAttribute("msg", "Usuario eliminado exitosamente");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el usuario");
-        }
+    @PostMapping("/delete")
+    public String deleteUsuario(@ModelAttribute Usuario usuario, RedirectAttributes redirect) {
+        usuarioService.eliminarPorId(usuario.getId());
+        redirect.addFlashAttribute("msg", "Usuario eliminado correctamente");
         return "redirect:/usuarios";
     }
 }

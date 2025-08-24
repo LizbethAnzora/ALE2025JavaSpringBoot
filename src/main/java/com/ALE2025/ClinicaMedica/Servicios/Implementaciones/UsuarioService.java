@@ -1,14 +1,16 @@
 package com.ALE2025.ClinicaMedica.Servicios.Implementaciones;
 
-import com.ALE2025.ClinicaMedica.Modelos.Usuario;
-import com.ALE2025.ClinicaMedica.Repositorios.IUsuarioRepository;
-import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IUsuarioService;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
+
+import com.ALE2025.ClinicaMedica.Modelos.Usuario;
+import com.ALE2025.ClinicaMedica.Repositorios.IUsuarioRepository;
+import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IUsuarioService;
 
 @Service
 public class UsuarioService implements IUsuarioService {
@@ -17,18 +19,13 @@ public class UsuarioService implements IUsuarioService {
     private IUsuarioRepository usuarioRepository;
 
     @Override
-    public List<Usuario> obtenerTodos() {
-        return usuarioRepository.findAll();
-    }
-
-    @Override
     public Page<Usuario> buscarTodosPaginados(Pageable pageable) {
         return usuarioRepository.findAll(pageable);
     }
 
     @Override
-    public Page<Usuario> buscarPorNombreOEmailPaginado(String keyword, Pageable pageable) {
-        return usuarioRepository.findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword, pageable);
+    public List<Usuario> obtenerTodos() {
+        return usuarioRepository.findAll();
     }
 
     @Override
@@ -37,8 +34,8 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
-    public Usuario crearOEditar(Usuario u) {
-        return usuarioRepository.save(u);
+    public Usuario crearOEditar(Usuario usuario) {
+        return usuarioRepository.save(usuario);
     }
 
     @Override

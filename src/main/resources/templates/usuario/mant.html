@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/_mainLayout}">
+  <head>
+    <title layout:fragment="title" th:text="'Usuario - ' + ${action}">Usuario</title>
+    <style layout:fragment="style-add">
+      .swal2-dark {
+        background-color: #33405c !important;
+        color: #ffffff !important;
+        border: 1px solid #33405c;
+      }
+      .swal2-title {
+        color: #ffffff !important;
+      }
+      .swal2-content {
+        color: #c0c0c0 !important;
+      }
+      .swal2-icon {
+        border-color: #c0c0c0 !important;
+      }
+      .swal2-confirm.swal2-custom-button-delete {
+        background-color: #f44336 !important;
+        color: #ffffff !important;
+      }
+      .swal2-cancel.swal2-custom-button-cancel {
+        background-color: #3e4b65 !important;
+        color: #ffffff !important;
+      }
+      .swal2-confirm.swal2-custom-button-save {
+        background-color: #6a6a9b !important;
+        color: #ffffff !important;
+      }
+    </style>
+  </head>
+  <body>
+    <section layout:fragment="content" class="bg-[#111828] min-h-screen py-12">
+      <div class="container mx-auto px-4 mt-5">
+        <div class="bg-[#293145] text-white shadow-xl rounded-xl border border-transparent p-6 md:p-8">
+          <div class="border-b border-transparent pb-0 mb-6">
+            <h4
+              class="mb-0 text-white font-bold text-2xl"
+              th:text="${action == 'create' ? 'Crear Nuevo Usuario' : action == 'edit' ? 'Editar Usuario' : action == 'view' ? 'Detalles del Usuario' : action == 'delete' ? 'Confirmar Eliminación' : 'Usuario'}"
+            ></h4>
+          </div>
+
+          <div class="card-body">
+            <form
+              id="formUsuario"
+              th:action="@{${action == 'create' ? '/usuarios/create' : action == 'edit' ? '/usuarios/edit' : action == 'delete' ? '/usuarios/delete' : '#'}}"
+              th:object="${usuario}"
+              method="post"
+            >
+              <input type="hidden" th:if="${usuario.id != null}" th:field="*{id}" />
+
+              <div class="mb-4">
+                <label for="nombre" class="block text-white mb-2">Nombre</label>
+                <input
+                  type="text"
+                  th:field="*{nombre}"
+                  id="nombre"
+                  class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                  th:attr="readonly=${action=='view' or action=='delete'}"
+                />
+                <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+              </div>
+
+              <div class="mb-4">
+                <label for="email" class="block text-white mb-2">Email</label>
+                <input
+                  type="email"
+                  th:field="*{email}"
+                  id="email"
+                  class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                  th:attr="readonly=${action=='view' or action=='delete'}"
+                />
+                <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+              </div>
+
+              <div class="mb-4" th:if="${action == 'create' or action == 'edit'}">
+                <label for="contraseña" class="block text-white mb-2">Contraseña</label>
+                <input
+                  type="password"
+                  th:field="*{contraseña}"
+                  id="contraseña"
+                  class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                />
+                <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('contraseña')}" th:errors="*{contraseña}"></div>
+              </div>
+              
+              <div class="mb-4">
+                <label for="rol" class="block text-white mb-2">Rol</label>
+                <select th:field="*{rol}" id="rol" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25" th:attr="disabled=${action=='view' or action=='delete'}">
+                    <option th:each="rolOpt : ${roles}" th:value="${rolOpt.id}" th:text="${rolOpt.nombre}" th:selected="${usuario.rol != null and usuario.rol.id == rolOpt.id}"></option>
+                </select>
+                <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('rol')}" th:errors="*{rol}"></div>
+              </div>
+
+              <div class="mb-4">
+                <label for="estado" class="block text-white mb-2">Estado</label>
+                <select th:field="*{estado}" id="estado" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25" th:attr="disabled=${action=='view' or action=='delete'}">
+                    <option th:each="estadoOpt : ${T(com.ALE2025.ClinicaMedica.Modelos.Usuario.EstadoUsuario).values()}" th:value="${estadoOpt}" th:text="${estadoOpt.name()}"></option>
+                </select>
+                <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
+              </div>
+
+              <div th:if="${action != 'view'}" class="mt-8 flex space-x-4">
+                <button
+                  type="submit"
+                  class="font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                  th:classappend="${action == 'delete' ? 'bg-[#F44336] hover:bg-[#d32f2f] text-white' : 'bg-[#6a6a9b] hover:bg-[#535380] text-white'}"
+                >
+                  <span th:if="${action == 'delete'}"><i class="fas fa-trash-alt mr-2"></i> Confirmar Eliminación</span>
+                  <span th:if="${action != 'delete'}"><i class="fas fa-save mr-2"></i> Guardar</span>
+                </button>
+                <a
+                  th:href="@{/usuarios}"
+                  class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <i class="fas fa-times mr-2"></i> Cancelar
+                </a>
+              </div>
+
+              <div th:if="${action == 'view'}" class="mt-8">
+                <a
+                  th:href="@{/usuarios}"
+                  class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <i class="fas fa-arrow-left mr-2"></i> Regresar
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script layout:fragment="script-add">
+      document.addEventListener('DOMContentLoaded', function () {
+        const error = '[[${error}]]';
+        if (error && error.trim() !== '') {
+          Swal.fire({
+            title: 'Error',
+            text: error,
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            customClass: {
+              popup: 'swal2-dark',
+              confirmButton: 'swal2-custom-button-delete',
+            },
+          });
+        }
+        const form = document.getElementById('formUsuario');
+        if (form) {
+          form.addEventListener('submit', function (event) {
+            const action = form.getAttribute('th:action');
+            const isCreateOrEdit = action.includes('create') || action.includes('edit');
+            if (isCreateOrEdit) {
+              event.preventDefault();
+              // Aca van las validaciones específicas para Usuario si fueran necesarias
+              Swal.fire({
+                title: '¿Confirmar Guardado?',
+                text: 'Se guardarán los cambios.',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#6a6a9b',
+                cancelButtonColor: '#3e4b65',
+                confirmButtonText: 'Sí, guardar',
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                  popup: 'swal2-dark',
+                  confirmButton: 'swal2-custom-button-save',
+                  cancelButton: 'swal2-custom-button-cancel',
+                },
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  form.submit();
+                }
+              });
+            } else if (action.includes('delete')) {
+              event.preventDefault();
+              Swal.fire({
+                title: '¿Confirmar Eliminación?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f44336',
+                cancelButtonColor: '#3e4b65',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                  popup: 'swal2-dark',
+                  confirmButton: 'swal2-custom-button-delete',
+                  cancelButton: 'swal2-custom-button-cancel',
+                },
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  form.submit();
+                }
+              });
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
