@@ -2,25 +2,31 @@ package com.ALE2025.ClinicaMedica.Modelos;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
+import jakarta.validation.constraints.Size;
 
+/**
+ * Clase que representa la entidad Especialidad en la base de datos.
+ * Esta clase mapea a la tabla 'Especialidades' y define sus campos.
+ * Utiliza anotaciones de JPA para la configuración de la persistencia.
+ */
 @Entity
 @Table(name = "Especialidades")
 public class Especialidad {
+
+    // Identificador de la entidad, con generación automática
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank(message = "El nombre de la especialidad es requerido")
+    // Nombre de la especialidad, requerido y con un tamaño específico
+    @NotBlank(message = "El nombre es requerido")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     private String nombre;
 
+    // Descripción de la especialidad, puede ser nula
     private String descripcion;
 
-    @OneToMany(mappedBy = "especialidad", cascade = CascadeType.ALL)
-    private List<Medico> medicos;
-
-    @OneToMany(mappedBy = "especialidad", cascade = CascadeType.ALL)
-    private List<Historial> historiales;
+    // Métodos para acceder y modificar los atributos de la entidad (getters y setters)
 
     public Integer getId() {
         return id;
@@ -44,21 +50,5 @@ public class Especialidad {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-
-    public List<Medico> getMedicos() {
-        return medicos;
-    }
-
-    public void setMedicos(List<Medico> medicos) {
-        this.medicos = medicos;
-    }
-
-    public List<Historial> getHistoriales() {
-        return historiales;
-    }
-
-    public void setHistoriales(List<Historial> historiales) {
-        this.historiales = historiales;
     }
 }
