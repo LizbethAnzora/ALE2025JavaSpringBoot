@@ -2,33 +2,36 @@ package com.ALE2025.ClinicaMedica.Modelos;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import java.sql.Time;
-
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "Horarios")
 public class Horario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "medico_id", referencedColumnName = "id")
+    @JoinColumn(name = "medico_id", nullable = false)
+    @NotNull(message = "El médico es requerido")
     private Medico medico;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "diaSemana", nullable = false)
     @NotNull(message = "El día de la semana es requerido")
     private DiaSemana diaSemana;
 
+    @Column(name = "horaInicio", nullable = false)
     @NotNull(message = "La hora de inicio es requerida")
-    private Time horaInicio;
+    private LocalTime horaInicio;
 
+    @Column(name = "horaFin", nullable = false)
     @NotNull(message = "La hora de fin es requerida")
-    private Time horaFin;
+    private LocalTime horaFin;
 
-    public enum DiaSemana {
-        Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo
-    }
+    // Getters y Setters
 
     public Integer getId() {
         return id;
@@ -54,19 +57,19 @@ public class Horario {
         this.diaSemana = diaSemana;
     }
 
-    public Time getHoraInicio() {
+    public LocalTime getHoraInicio() {
         return horaInicio;
     }
 
-    public void setHoraInicio(Time horaInicio) {
+    public void setHoraInicio(LocalTime horaInicio) {
         this.horaInicio = horaInicio;
     }
 
-    public Time getHoraFin() {
+    public LocalTime getHoraFin() {
         return horaFin;
     }
 
-    public void setHoraFin(Time horaFin) {
+    public void setHoraFin(LocalTime horaFin) {
         this.horaFin = horaFin;
     }
 }

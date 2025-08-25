@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title" th:text="'Horario - ' + ${action}">Horario</title>
+</head>
+<body>
+<section layout:fragment="content" class="bg-[#111828] min-h-screen py-12">
+    <div th:if="${error != null}">
+        <script>
+            Swal.fire({
+                title: 'Error',
+                text: '[[ ${error} ]]',
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full'
+                }
+            });
+        </script>
+    </div>
+    <div class="container mx-auto px-4 mt-5">
+        <div class="bg-[#293145] text-white shadow-xl rounded-xl border border-transparent p-6 md:p-8">
+            <div class="border-b border-transparent pb-0 mb-6">
+                <h4
+                        class="mb-0 text-white font-bold text-2xl"
+                        th:text="${action == 'create' ? 'Crear Nuevo Horario' : action == 'edit' ? 'Editar Horario' : action == 'view' ? 'Detalles del Horario' : action == 'delete' ? 'Confirmar Eliminación' : 'Horario'}"
+                ></h4>
+            </div>
+
+            <div class="card-body">
+                <form
+                        id="formHorario"
+                        th:action="@{${action == 'create' ? '/horarios/create' : action == 'edit' ? '/horarios/edit' : action == 'delete' ? '/horarios/delete' : '#'}}"
+                        th:object="${horario}"
+                        method="post"
+                >
+                    <input type="hidden" th:if="${horario.id != null}" th:field="*{id}" />
+                    <div class="mb-4">
+                        <label class="block text-white mb-2">Médico</label>
+                        <span th:if="${action == 'view' || action == 'delete'}" th:text="${horario.medico.nombre} + ' ' + ${horario.medico.apellido}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
+                        <select
+                                th:if="${action != 'view' && action != 'delete'}"
+                                id="medico"
+                                th:field="*{medico.id}"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="disabled=${action=='view' or action=='delete'}"
+                        >
+                            <option value="">Seleccione un médico</option>
+                            <option th:each="med : ${medicos}" th:value="${med.id}" th:text="${med.nombre} + ' ' + ${med.apellido}" th:selected="${horario.medico != null and horario.medico.id == med.id}"></option>
+                        </select>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('medico')}" th:errors="*{medico}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-white mb-2">Día de la Semana</label>
+                        <span th:if="${action == 'view' || action == 'delete'}" th:text="${horario.diaSemana}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
+                        <select
+                                th:if="${action != 'view' && action != 'delete'}"
+                                id="diaSemana"
+                                th:field="*{diaSemana}"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="disabled=${action=='view' or action=='delete'}"
+                        >
+                            <option value="">Seleccione el día</option>
+                            <option th:each="dia : ${diasSemana}" th:value="${dia}" th:text="${dia}" th:selected="${horario.diaSemana != null and horario.diaSemana == dia}"></option>
+                        </select>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('diaSemana')}" th:errors="*{diaSemana}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="horaInicio" class="block text-white mb-2">Hora de Inicio</label>
+                        <input
+                                type="time"
+                                th:field="*{horaInicio}"
+                                id="horaInicio"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('horaInicio')}" th:errors="*{horaInicio}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="horaFin" class="block text-white mb-2">Hora de Fin</label>
+                        <input
+                                type="time"
+                                th:field="*{horaFin}"
+                                id="horaFin"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('horaFin')}" th:errors="*{horaFin}"></div>
+                    </div>
+
+                    <div th:if="${action != 'view'}" class="mt-8 flex space-x-4">
+                        <button
+                                type="submit"
+                                class="font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                                th:classappend="${action == 'delete' ? 'bg-[#F44336] hover:bg-[#d32f2f] text-white' : 'bg-[#6a6a9b] hover:bg-[#535380] text-white'}"
+                        >
+                            <span th:if="${action == 'delete'}"><i class="fas fa-trash-alt mr-2"></i> Confirmar Eliminación</span>
+                            <span th:if="${action != 'delete'}"><i class="fas fa-save mr-2"></i> Guardar</span>
+                        </button>
+                        <a
+                                th:href="@{/horarios}"
+                                class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            <i class="fas fa-times mr-2"></i> Cancelar
+                        </a>
+                    </div>
+
+                    <div th:if="${action == 'view'}" class="mt-8">
+                        <a
+                                th:href="@{/horarios}"
+                                class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            <i class="fas fa-arrow-left mr-2"></i> Regresar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
