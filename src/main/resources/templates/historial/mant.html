@@ -53,43 +53,67 @@
 
                     <div class="mb-4">
                         <label for="paciente" class="block text-white mb-2">Paciente</label>
-                        <select
-                                th:field="*{paciente}"
-                                id="paciente"
-                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
-                                th:disabled="${action == 'view' or action == 'delete'}"
-                        >
-                            <option value="">Seleccione un paciente</option>
-                            <option th:each="p : ${pacientes}" th:value="${p.id}" th:text="${p.nombre + ' ' + p.apellido}" th:selected="${historial.paciente != null and historial.paciente.id == p.id}"></option>
-                        </select>
+                        <div th:if="${action == 'create' or action == 'edit'}">
+                            <select
+                                    th:field="*{paciente}"
+                                    id="paciente"
+                                    class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                            >
+                                <option value="">Seleccione un paciente</option>
+                                <option th:each="p : ${pacientes}" th:value="${p.id}" th:text="${p.nombre + ' ' + p.apellido}" th:selected="${historial.paciente != null and historial.paciente.id == p.id}"></option>
+                            </select>
+                        </div>
+                        <div th:if="${action == 'view' or action == 'delete'}">
+                            <input type="text"
+                                   th:value="${historial.paciente != null ? historial.paciente.nombre + ' ' + historial.paciente.apellido : ''}"
+                                   readonly
+                                   class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight"
+                            />
+                        </div>
                         <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('paciente')}" th:errors="*{paciente}"></div>
                     </div>
 
                     <div class="mb-4">
                         <label for="medico" class="block text-white mb-2">Médico</label>
-                        <select
-                                th:field="*{medico}"
-                                id="medico"
-                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
-                                th:disabled="${action == 'view' or action == 'delete'}"
-                        >
-                            <option value="">Seleccione un médico</option>
-                            <option th:each="m : ${medicos}" th:value="${m.id}" th:text="${m.nombre + ' ' + m.apellido}" th:selected="${historial.medico != null and historial.medico.id == m.id}"></option>
-                        </select>
+                        <div th:if="${action == 'create' or action == 'edit'}">
+                            <select
+                                    th:field="*{medico}"
+                                    id="medico"
+                                    class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                            >
+                                <option value="">Seleccione un médico</option>
+                                <option th:each="m : ${medicos}" th:value="${m.id}" th:text="${m.nombre + ' ' + m.apellido}" th:selected="${historial.medico != null and historial.medico.id == m.id}"></option>
+                            </select>
+                        </div>
+                        <div th:if="${action == 'view' or action == 'delete'}">
+                            <input type="text"
+                                   th:value="${historial.medico != null ? historial.medico.nombre + ' ' + historial.medico.apellido : ''}"
+                                   readonly
+                                   class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight"
+                            />
+                        </div>
                         <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('medico')}" th:errors="*{medico}"></div>
                     </div>
 
                     <div class="mb-4">
                         <label for="especialidad" class="block text-white mb-2">Especialidad</label>
-                        <select
-                                th:field="*{especialidad}"
-                                id="especialidad"
-                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
-                                th:disabled="${action == 'view' or action == 'delete'}"
-                        >
-                            <option value="">Seleccione una especialidad</option>
-                            <option th:each="e : ${especialidades}" th:value="${e.id}" th:text="${e.nombre}" th:selected="${historial.especialidad != null and historial.especialidad.id == e.id}"></option>
-                        </select>
+                        <div th:if="${action == 'create' or action == 'edit'}">
+                            <select
+                                    th:field="*{especialidad}"
+                                    id="especialidad"
+                                    class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                            >
+                                <option value="">Seleccione una especialidad</option>
+                                <option th:each="e : ${especialidades}" th:value="${e.id}" th:text="${e.nombre}" th:selected="${historial.especialidad != null and historial.especialidad.id == e.id}"></option>
+                            </select>
+                        </div>
+                        <div th:if="${action == 'view' or action == 'delete'}">
+                            <input type="text"
+                                   th:value="${historial.especialidad != null ? historial.especialidad.nombre : ''}"
+                                   readonly
+                                   class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight"
+                            />
+                        </div>
                         <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('especialidad')}" th:errors="*{especialidad}"></div>
                     </div>
 
@@ -104,7 +128,7 @@
                         />
                         <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('fecha_cita')}" th:errors="*{fecha_cita}"></div>
                     </div>
-                    
+
                     <div class="mb-4">
                         <label for="observaciones" class="block text-white mb-2">Observaciones</label>
                         <textarea
