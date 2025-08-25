@@ -1,60 +1,62 @@
 package com.ALE2025.ClinicaMedica.Modelos;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.List;
+import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "Medicos")
 public class Medico {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank(message = "El nombre es requerido")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     private String nombre;
 
     @NotBlank(message = "El apellido es requerido")
+    @Size(min = 2, max = 100, message = "El apellido debe tener entre 2 y 100 caracteres")
     private String apellido;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_Especialidad", referencedColumnName = "id")
+    @JoinColumn(name = "id_Especialidad", nullable = false)
+    @NotNull(message = "La especialidad es requerida")
     private Especialidad especialidad;
 
-    @NotNull(message = "El costo de la consulta es requerido")
-    private BigDecimal costoConsulta;
+    @NotNull(message = "El costo de consulta es requerido")
+    @DecimalMin(value = "0.01", message = "El costo debe ser mayor a 0")
+    @Column(name = "costo_consulta")
+    private Double costoConsulta;
 
-    @Enumerated(EnumType.STRING)
-    private GeneroMedico genero;
+    @NotBlank(message = "El género es requerido")
+    @Pattern(regexp = "Masculino|Femenino|Otro", message = "Género no válido")
+    private String genero;
 
     @NotBlank(message = "El DUI es requerido")
-    private String dui;
+    @Size(min = 10, max = 10, message = "El DUI debe tener 10 caracteres")
+    @Column(unique = true)
+    private String DUI;
 
+    @Size(max = 20, message = "El teléfono no puede tener más de 20 caracteres")
     private String telefono;
+
+    @Size(max = 255, message = "La dirección no puede tener más de 255 caracteres")
     private String direccion;
 
-    @NotBlank(message = "El correo electrónico es requerido")
-    @Email(message = "Debe ser una dirección de correo válida")
+    @NotBlank(message = "El email es requerido")
+    @Email(message = "El email debe ser una dirección de correo válida")
+    @Column(unique = true)
     private String email;
 
-    private String imagen;
+    @Column(name = "imagen")
+    private String imagenPath;
 
-    @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)
-    private List<Horario> horarios;
+    @Transient
+    private MultipartFile imagenFile;
 
-    @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)
-    private List<Cita> citas;
-
-    @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)
-    private List<Historial> historiales;
-
-    public enum GeneroMedico {
-        Masculino, Femenino, Otro
-    }
-
+    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -87,28 +89,28 @@ public class Medico {
         this.especialidad = especialidad;
     }
 
-    public BigDecimal getCostoConsulta() {
+    public Double getCostoConsulta() {
         return costoConsulta;
     }
 
-    public void setCostoConsulta(BigDecimal costoConsulta) {
+    public void setCostoConsulta(Double costoConsulta) {
         this.costoConsulta = costoConsulta;
     }
 
-    public GeneroMedico getGenero() {
+    public String getGenero() {
         return genero;
     }
 
-    public void setGenero(GeneroMedico genero) {
+    public void setGenero(String genero) {
         this.genero = genero;
     }
 
-    public String getDui() {
-        return dui;
+    public String getDUI() {
+        return DUI;
     }
 
-    public void setDui(String dui) {
-        this.dui = dui;
+    public void setDUI(String DUI) {
+        this.DUI = DUI;
     }
 
     public String getTelefono() {
@@ -135,35 +137,19 @@ public class Medico {
         this.email = email;
     }
 
-    public String getImagen() {
-        return imagen;
+    public String getImagenPath() {
+        return imagenPath;
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
+    public void setImagenPath(String imagenPath) {
+        this.imagenPath = imagenPath;
     }
 
-    public List<Horario> getHorarios() {
-        return horarios;
+    public MultipartFile getImagenFile() {
+        return imagenFile;
     }
 
-    public void setHorarios(List<Horario> horarios) {
-        this.horarios = horarios;
-    }
-
-    public List<Cita> getCitas() {
-        return citas;
-    }
-
-    public void setCitas(List<Cita> citas) {
-        this.citas = citas;
-    }
-
-    public List<Historial> getHistoriales() {
-        return historiales;
-    }
-
-    public void setHistoriales(List<Historial> historiales) {
-        this.historiales = historiales;
+    public void setImagenFile(MultipartFile imagenFile) {
+        this.imagenFile = imagenFile;
     }
 }
