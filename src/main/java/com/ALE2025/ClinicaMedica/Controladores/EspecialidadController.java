@@ -1,22 +1,19 @@
 package com.ALE2025.ClinicaMedica.Controladores;
 
-import com.ALE2025.ClinicaMedica.Modelos.Especialidad;
-import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IEspecialidadService;
-import jakarta.validation.Valid;
+import java.util.*;
+import java.util.stream.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import com.ALE2025.ClinicaMedica.Modelos.Especialidad;
+import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IEspecialidadService;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/especialidades")
@@ -85,6 +82,13 @@ public class EspecialidadController {
             model.addAttribute("action", "create");
             return "especialidad/mant";
         }
+
+        if (especialidadService.existeEspecialidadConNombre(especialidad.getNombre())) {
+            model.addAttribute("error", "El nombre de la especialidad ya existe. Por favor, ingrese un nombre diferente.");
+            model.addAttribute("action", "create");
+            return "especialidad/mant";
+        }
+        
         especialidadService.crearOEditar(especialidad);
         redirect.addFlashAttribute("msg", "Especialidad creada correctamente");
         return "redirect:/especialidades";
@@ -97,6 +101,16 @@ public class EspecialidadController {
             model.addAttribute("action", "edit");
             return "especialidad/mant";
         }
+
+        Optional<Especialidad> especialidadExistente = especialidadService.buscarPorId(especialidad.getId());
+        if (especialidadExistente.isPresent() && !especialidadExistente.get().getNombre().equals(especialidad.getNombre())) {
+            if (especialidadService.existeEspecialidadConNombre(especialidad.getNombre())) {
+                model.addAttribute("error", "El nombre de la especialidad ya existe. Por favor, ingrese un nombre diferente.");
+                model.addAttribute("action", "edit");
+                return "especialidad/mant";
+            }
+        }
+        
         especialidadService.crearOEditar(especialidad);
         redirect.addFlashAttribute("msg", "Especialidad actualizada correctamente");
         return "redirect:/especialidades";

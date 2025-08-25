@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/_mainLayout}">
+    <head>
+        <title layout:fragment="title" th:text="'Especialidad - ' + ${action}">Especialidad</title>
+        <style layout:fragment="style-add">
+            .swal2-dark {
+                background-color: #33405c !important;
+                color: #ffffff !important;
+                border: 1px solid #33405c;
+            }
+            .swal2-title {
+                color: #ffffff !important;
+            }
+            .swal2-content {
+                color: #c0c0c0 !important;
+            }
+            .swal2-icon {
+                border-color: #c0c0c0 !important;
+            }
+            .swal2-confirm.swal2-custom-button-delete {
+                background-color: #f44336 !important;
+                color: #ffffff !important;
+            }
+            .swal2-cancel.swal2-custom-button-cancel {
+                background-color: #3e4b65 !important;
+                color: #ffffff !important;
+            }
+            .swal2-confirm.swal2-custom-button-save {
+                background-color: #6a6a9b !important;
+                color: #ffffff !important;
+            }
+        </style>
+    </head>
+    <body>
+        <section layout:fragment="content" class="bg-[#111828] min-h-screen py-12">
+            <div class="container mx-auto px-4 mt-5">
+                <div class="bg-[#293145] text-white shadow-xl rounded-xl border border-transparent p-6 md:p-8">
+                    <div class="border-b border-transparent pb-0 mb-6">
+                        <h4
+                            class="mb-0 text-white font-bold text-2xl"
+                            th:text="${action == 'create' ? 'Crear Nueva Especialidad' : action == 'edit' ? 'Editar Especialidad' : action == 'view' ? 'Detalles de la Especialidad' : action == 'delete' ? 'Confirmar Eliminación' : 'Especialidad'}"
+                        ></h4>
+                    </div>
+
+                    <div class="card-body">
+                        <form
+                            id="formEspecialidad"
+                            th:action="@{${action == 'create' ? '/especialidades/create' : action == 'edit' ? '/especialidades/edit' : action == 'delete' ? '/especialidades/delete' : '#'}}"
+                            th:object="${especialidad}"
+                            method="post"
+                        >
+                            <input type="hidden" th:if="${especialidad.id != null}" th:field="*{id}" />
+
+                            <div class="mb-4">
+                                <label for="nombre" class="block text-white mb-2">Nombre</label>
+                                <input
+                                    type="text"
+                                    th:field="*{nombre}"
+                                    id="nombre"
+                                    class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                    th:attr="readonly=${action=='view' or action=='delete'}"
+                                />
+                                <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="descripcion" class="block text-white mb-2">Descripción</label>
+                                <textarea
+                                    th:field="*{descripcion}"
+                                    id="descripcion"
+                                    rows="4"
+                                    class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                    th:attr="readonly=${action=='view' or action=='delete'}"
+                                ></textarea>
+                                <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+                            </div>
+                            
+                            <div th:if="${action != 'view'}" class="mt-8 flex space-x-4">
+                                <button
+                                    type="submit"
+                                    class="font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                                    th:classappend="${action == 'delete' ? 'bg-[#F44336] hover:bg-[#d32f2f] text-white' : 'bg-[#6a6a9b] hover:bg-[#535380] text-white'}"
+                                >
+                                    <span th:if="${action == 'delete'}"><i class="fas fa-trash-alt mr-2"></i> Confirmar Eliminación</span>
+                                    <span th:if="${action != 'delete'}"><i class="fas fa-save mr-2"></i> Guardar</span>
+                                </button>
+                                <a
+                                    th:href="@{/especialidades}"
+                                    class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                                >
+                                    <i class="fas fa-times mr-2"></i> Cancelar
+                                </a>
+                            </div>
+
+                            <div th:if="${action == 'view'}" class="mt-8">
+                                <a
+                                    th:href="@{/especialidades}"
+                                    class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                                >
+                                    <i class="fas fa-arrow-left mr-2"></i> Regresar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <script layout:fragment="script-add">
+            document.addEventListener('DOMContentLoaded', function () {
+                const error = '[[${error}]]';
+                if (error && error.trim() !== '') {
+                    Swal.fire({
+                        title: 'Error',
+                        text: error,
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar',
+                        customClass: {
+                            popup: 'swal2-dark',
+                            confirmButton: 'swal2-custom-button-delete',
+                        },
+                    });
+                }
+                const form = document.getElementById('formEspecialidad');
+                if (form) {
+                    form.addEventListener('submit', function (event) {
+                        const action = form.getAttribute('th:action');
+                        const isCreateOrEdit = action.includes('create') || action.includes('edit');
+                        if (isCreateOrEdit) {
+                            event.preventDefault();
+                            Swal.fire({
+                                title: '¿Confirmar Guardado?',
+                                text: 'Se guardarán los cambios.',
+                                icon: 'info',
+                                showCancelButton: true,
+                                confirmButtonColor: '#6a6a9b',
+                                cancelButtonColor: '#3e4b65',
+                                confirmButtonText: 'Sí, guardar',
+                                cancelButtonText: 'Cancelar',
+                                customClass: {
+                                    popup: 'swal2-dark',
+                                    confirmButton: 'swal2-custom-button-save',
+                                    cancelButton: 'swal2-custom-button-cancel',
+                                },
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
+                        } else if (action.includes('delete')) {
+                            event.preventDefault();
+                            Swal.fire({
+                                title: '¿Confirmar Eliminación?',
+                                text: 'Esta acción no se puede deshacer.',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#f44336',
+                                cancelButtonColor: '#3e4b65',
+                                confirmButtonText: 'Sí, eliminar',
+                                cancelButtonText: 'Cancelar',
+                                customClass: {
+                                    popup: 'swal2-dark',
+                                    confirmButton: 'swal2-custom-button-delete',
+                                    cancelButton: 'swal2-custom-button-cancel',
+                                },
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>

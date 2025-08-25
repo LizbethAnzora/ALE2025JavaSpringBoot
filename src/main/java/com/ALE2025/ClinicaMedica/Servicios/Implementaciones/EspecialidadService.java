@@ -12,10 +12,6 @@ import com.ALE2025.ClinicaMedica.Modelos.Especialidad;
 import com.ALE2025.ClinicaMedica.Repositorios.IEspecialidadRepository;
 import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IEspecialidadService;
 
-/**
- * Implementación de la interfaz de servicio para la entidad Especialidad.
- * Proporciona la lógica de negocio para las operaciones de CRUD.
- */
 @Service
 public class EspecialidadService implements IEspecialidadService {
 
@@ -37,6 +33,7 @@ public class EspecialidadService implements IEspecialidadService {
         return especialidadRepository.findById(id);
     }
 
+    // Método corregido
     @Override
     public Especialidad crearOEditar(Especialidad especialidad) {
         return especialidadRepository.save(especialidad);
@@ -45,5 +42,10 @@ public class EspecialidadService implements IEspecialidadService {
     @Override
     public void eliminarPorId(Integer id) {
         especialidadRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean existeEspecialidadConNombre(String nombre) {
+        return especialidadRepository.findByNombre(nombre).isPresent();
     }
 }
