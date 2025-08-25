@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title" th:text="'Historial - ' + ${action}"></title>
+    <style layout:fragment="style-add">
+        .swal2-dark {
+            background-color: #33405c !important;
+            color: #ffffff !important;
+            border: 1px solid #33405c;
+        }
+        .swal2-title {
+            color: #ffffff !important;
+        }
+        .swal2-content {
+            color: #c0c0c0 !important;
+        }
+        .swal2-icon {
+            border-color: #c0c0c0 !important;
+        }
+        .swal2-confirm.swal2-custom-button-delete {
+            background-color: #f44336 !important;
+            color: #ffffff !important;
+        }
+        .swal2-cancel.swal2-custom-button-cancel {
+            background-color: #3e4b65 !important;
+            color: #ffffff !important;
+        }
+        .swal2-confirm.swal2-custom-button-save {
+            background-color: #6a6a9b !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body>
+<section layout:fragment="content" class="bg-[#111828] min-h-screen py-12">
+    <div class="container mx-auto px-4 mt-5">
+        <div class="bg-[#293145] text-white shadow-xl rounded-xl border border-transparent p-6 md:p-8">
+            <div class="border-b border-transparent pb-0 mb-6">
+                <h4
+                        class="mb-0 text-white font-bold text-2xl"
+                        th:text="${action == 'create' ? 'Crear Nuevo Historial' : action == 'edit' ? 'Editar Historial' : action == 'view' ? 'Detalles del Historial' : action == 'delete' ? 'Confirmar Eliminación' : 'Historial'}"
+                ></h4>
+            </div>
+
+            <div class="card-body">
+                <form
+                        id="formHistorial"
+                        th:action="@{${action == 'create' ? '/historiales/create' : action == 'edit' ? '/historiales/edit' : action == 'delete' ? '/historiales/delete' : '#'}}"
+                        th:object="${historial}"
+                        method="post"
+                >
+                    <input type="hidden" th:if="${historial.id != null}" th:field="*{id}" />
+
+                    <div class="mb-4">
+                        <label for="paciente" class="block text-white mb-2">Paciente</label>
+                        <select
+                                th:field="*{paciente}"
+                                id="paciente"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:disabled="${action == 'view' or action == 'delete'}"
+                        >
+                            <option value="">Seleccione un paciente</option>
+                            <option th:each="p : ${pacientes}" th:value="${p.id}" th:text="${p.nombre + ' ' + p.apellido}" th:selected="${historial.paciente != null and historial.paciente.id == p.id}"></option>
+                        </select>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('paciente')}" th:errors="*{paciente}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="medico" class="block text-white mb-2">Médico</label>
+                        <select
+                                th:field="*{medico}"
+                                id="medico"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:disabled="${action == 'view' or action == 'delete'}"
+                        >
+                            <option value="">Seleccione un médico</option>
+                            <option th:each="m : ${medicos}" th:value="${m.id}" th:text="${m.nombre + ' ' + m.apellido}" th:selected="${historial.medico != null and historial.medico.id == m.id}"></option>
+                        </select>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('medico')}" th:errors="*{medico}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="especialidad" class="block text-white mb-2">Especialidad</label>
+                        <select
+                                th:field="*{especialidad}"
+                                id="especialidad"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:disabled="${action == 'view' or action == 'delete'}"
+                        >
+                            <option value="">Seleccione una especialidad</option>
+                            <option th:each="e : ${especialidades}" th:value="${e.id}" th:text="${e.nombre}" th:selected="${historial.especialidad != null and historial.especialidad.id == e.id}"></option>
+                        </select>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('especialidad')}" th:errors="*{especialidad}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="fecha_cita" class="block text-white mb-2">Fecha de la Cita</label>
+                        <input
+                                type="date"
+                                th:field="*{fecha_cita}"
+                                id="fecha_cita"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('fecha_cita')}" th:errors="*{fecha_cita}"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="observaciones" class="block text-white mb-2">Observaciones</label>
+                        <textarea
+                                th:field="*{observaciones}"
+                                id="observaciones"
+                                rows="5"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        ></textarea>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('observaciones')}" th:errors="*{observaciones}"></div>
+                    </div>
+
+                    <div th:if="${action != 'view'}" class="mt-8 flex space-x-4">
+                        <button
+                                type="submit"
+                                class="font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                                th:classappend="${action == 'delete' ? 'bg-[#F44336] hover:bg-[#d32f2f] text-white' : 'bg-[#6a6a9b] hover:bg-[#535380] text-white'}"
+                        >
+                            <span th:if="${action == 'delete'}"><i class="fas fa-trash-alt mr-2"></i> Confirmar Eliminación</span>
+                            <span th:if="${action != 'delete'}"><i class="fas fa-save mr-2"></i> Guardar</span>
+                        </button>
+                        <a
+                                th:href="@{/historiales}"
+                                class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            <i class="fas fa-times mr-2"></i> Cancelar
+                        </a>
+                    </div>
+
+                    <div th:if="${action == 'view'}" class="mt-8">
+                        <a
+                                th:href="@{/historiales}"
+                                class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            <i class="fas fa-arrow-left mr-2"></i> Regresar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script layout:fragment="script-add">
+    document.addEventListener('DOMContentLoaded', function () {
+        const error = '[[${error}]]';
+        if (error && error.trim() !== '') {
+            Swal.fire({
+                title: 'Error',
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'swal2-dark',
+                    confirmButton: 'swal2-custom-button-delete',
+                },
+            });
+        }
+        const form = document.getElementById('formHistorial');
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                const action = form.getAttribute('th:action');
+                const isCreateOrEdit = action.includes('create') || action.includes('edit');
+                if (isCreateOrEdit) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '¿Confirmar Guardado?',
+                        text: 'Se guardarán los cambios.',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonColor: '#6a6a9b',
+                        cancelButtonColor: '#3e4b65',
+                        confirmButtonText: 'Sí, guardar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            popup: 'swal2-dark',
+                            confirmButton: 'swal2-custom-button-save',
+                            cancelButton: 'swal2-custom-button-cancel',
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                } else if (action.includes('delete')) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '¿Confirmar Eliminación?',
+                        text: 'Esta acción no se puede deshacer.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#f44336',
+                        cancelButtonColor: '#3e4b65',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            popup: 'swal2-dark',
+                            confirmButton: 'swal2-custom-button-delete',
+                            cancelButton: 'swal2-custom-button-cancel',
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

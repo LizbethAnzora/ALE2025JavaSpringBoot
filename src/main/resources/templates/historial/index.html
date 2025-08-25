@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title">Listado de Historiales</title>
+</head>
+<body>
+<section layout:fragment="content" class="bg-gray-900 min-h-screen py-12">
+    <div th:if="${msg != null}">
+        <script>
+            Swal.fire({
+                title: "Éxito",
+                text: '[[ ${msg} ]]',
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full'
+                }
+            });
+        </script>
+    </div>
+    <div class="container mx-auto px-4 max-w-7xl">
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <h4 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-file-medical text-indigo-400 mr-3"></i>
+                    Gestión de Historiales Clínicos
+                </h4>
+                <a th:href="@{/historiales/create}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-plus-circle mr-2"></i>Nuevo Historial
+                </a>
+            </div>
+
+            <div class="mb-6">
+                <form th:action="@{/historiales}" method="get" class="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div class="w-full">
+                        <label for="nombreMedico" class="block text-white mb-1">Nombre del médico</label>
+                        <input type="text"
+                               name="nombreMedico"
+                               id="nombreMedico"
+                               th:value="${nombreMedico}"
+                               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="w-full">
+                        <label for="nombreEspecialidad" class="block text-white mb-1">Especialidad</label>
+                        <input type="text"
+                               name="nombreEspecialidad"
+                               id="nombreEspecialidad"
+                               th:value="${nombreEspecialidad}"
+                               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="w-full">
+                        <label for="nombrePaciente" class="block text-white mb-1">Nombre del Paciente</label>
+                        <input type="text"
+                               name="nombrePaciente"
+                               id="nombrePaciente"
+                               th:value="${nombrePaciente}"
+                               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="w-full">
+                        <label for="apellidoPaciente" class="block text-white mb-1">Apellido del Paciente</label>
+                        <input type="text"
+                               name="apellidoPaciente"
+                               id="apellidoPaciente"
+                               th:value="${apellidoPaciente}"
+                               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="w-full lg:col-span-2">
+                        <label for="duiPaciente" class="block text-white mb-1">DUI del Paciente</label>
+                        <input type="text"
+                               name="duiPaciente"
+                               id="duiPaciente"
+                               th:value="${duiPaciente}"
+                               class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="w-full lg:col-span-2 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                        <button type="submit" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition-transform transform hover:scale-105">
+                            <i class="fas fa-search mr-2"></i>Buscar
+                        </button>
+                        <a th:href="@{/historiales}" class="w-full md:w-auto bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition-transform transform hover:scale-105 text-center">
+                            <i class="fas fa-sync-alt mr-2"></i>Limpiar
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg shadow-inner">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="text-xs text-gray-100 uppercase bg-gray-700">
+                    <tr>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-user mr-2"></i>Paciente</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-user-md mr-2"></i>Médico</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-briefcase-medical mr-2"></i>Especialidad</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-calendar-alt mr-2"></i>Fecha Cita</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-notes-medical mr-2"></i>Observaciones</th>
+                        <th scope="col" class="py-3 px-6 text-center"><i class="fas fa-cogs mr-2"></i>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="historial : ${historiales.content}" class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition duration-150 ease-in-out">
+                        <td th:text="${historial.paciente.nombre + ' ' + historial.paciente.apellido}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${historial.medico.nombre + ' ' + historial.medico.apellido}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${historial.especialidad.nombre}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${#dates.format(historial.fecha_cita, 'dd-MM-yyyy')}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td class="py-4 px-6 font-medium text-white whitespace-normal">
+                            <div class="max-w-xs overflow-y-auto max-h-24">
+                                <span th:text="${historial.observaciones}"></span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="inline-flex space-x-2">
+                                <a th:href="@{/historiales/view/{id}(id=${historial.id})}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-eye mr-2"></i>Ver
+                                </a>
+                                <a th:href="@{/historiales/edit/{id}(id=${historial.id})}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-pen mr-2"></i>Editar
+                                </a>
+                                <a th:href="@{/historiales/delete/{id}(id=${historial.id})}" onclick="return confirmarEliminacion(this.href);" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${historiales.totalElements == 0}">
+                        <td colspan="6" class="py-6 px-6 text-center text-gray-500 font-medium">No hay historiales registrados.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav th:if="${pageNumbers}" class="mt-8">
+                <ul class="flex justify-center space-x-2">
+                    <li th:each="pageNum : ${pageNumbers}"
+                        class="page-item"
+                        th:classappend="${pageNum == historiales.number + 1} ? 'bg-indigo-600 text-white rounded-full' : 'bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600'">
+                        <a class="py-2 px-4 block transition duration-150" th:href="@{/historiales(page=${pageNum}, size=${historiales.size}, nombreMedico=${nombreMedico}, nombreEspecialidad=${nombreEspecialidad}, nombrePaciente=${nombrePaciente}, apellidoPaciente=${apellidoPaciente}, duiPaciente=${duiPaciente})}" th:text="${pageNum}"></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<script layout:fragment="script-add">
+    function confirmarEliminacion(url) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#4b5563',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'bg-gray-800 text-white',
+                confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full',
+                cancelButton: 'bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-full'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+        return false;
+    }
+</script>
+</body>
+</html>

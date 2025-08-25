@@ -1,36 +1,45 @@
 package com.ALE2025.ClinicaMedica.Modelos;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "Historiales")
 public class Historial {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "paciente_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id", nullable = false)
+    @NotNull(message = "El paciente es requerido")
     private Paciente paciente;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "medico_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medico_id", nullable = false)
+    @NotNull(message = "El medico es requerido")
     private Medico medico;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "especialidad_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "especialidad_id", nullable = false)
+    @NotNull(message = "La especialidad es requerida")
     private Especialidad especialidad;
 
- 
-
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+@NotNull
+@Past
     @NotNull(message = "La fecha de la cita es requerida")
-    @Temporal(TemporalType.DATE)
-    private Date fechaCita;
+    @PastOrPresent(message = "La fecha debe ser en el pasado o presente")
+    private Date fecha_cita;
 
+    @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 
+    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -63,12 +72,12 @@ public class Historial {
         this.especialidad = especialidad;
     }
 
-    public Date getFechaCita() {
-        return fechaCita;
+    public Date getFecha_cita() {
+        return fecha_cita;
     }
 
-    public void setFechaCita(Date fechaCita) {
-        this.fechaCita = fechaCita;
+    public void setFecha_cita(Date fecha_cita) {
+        this.fecha_cita = fecha_cita;
     }
 
     public String getObservaciones() {
