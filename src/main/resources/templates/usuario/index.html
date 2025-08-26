@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html
-        xmlns:th="http://www.thymeleaf.org"
-        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-        layout:decorate="~{layouts/_mainLayout}">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainLayout}">
 <head>
     <title layout:fragment="title">Listado de Usuarios</title>
 </head>
@@ -48,6 +48,40 @@
                 </a>
             </div>
 
+            <form th:action="@{/usuarios}" method="get" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label for="nombre" class="block text-white mb-1">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" th:value="${nombreFiltro}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-white mb-1">Email</label>
+                        <input type="text" id="email" name="email" th:value="${emailFiltro}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="rol" class="block text-white mb-1">Rol</label>
+                        <select id="rol" name="rol" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Seleccione un rol</option>
+                            <option th:each="rol : ${roles}" th:value="${rol.id}" th:text="${rol.nombre}" th:selected="${rol.id == rolFiltro}"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="estado" class="block text-white mb-1">Estado</label>
+                        <select id="estado" name="estado" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Seleccione un estado</option>
+                            <option th:each="estado : ${estados}" th:value="${estado}" th:text="${estado.name() == 'activo' ? 'Activo' : 'Inactivo'}" th:selected="${estado != null and estado.name() == estadoFiltro?.name()}"></option>
+                        </select>
+                    </div>
+                    <div class="mt-6 flex justify-start space-x-4">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center">
+                        <i class="fas fa-search mr-2"></i> Buscar
+                    </button>
+                    <a th:href="@{/usuarios}" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center">
+                        <i class="fas fa-sync-alt mr-2"></i> Limpiar
+                    </a>
+                </div>
+                </form>
+            </div>
             <div class="overflow-x-auto rounded-lg shadow-inner">
                 <table class="w-full text-left text-sm text-gray-400">
                     <thead class="text-xs text-gray-100 uppercase bg-gray-700">
@@ -60,7 +94,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="usuario : ${usuarios.content}" class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition duration-150 ease-in-out">
+                    <tr th:each="usuario : ${usuarios}" class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition duration-150 ease-in-out">
                         <td th:text="${usuario.nombre}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
                         <td th:text="${usuario.email}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
                         <td th:text="${usuario.rol.nombre}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
@@ -81,19 +115,19 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${usuarios.totalElements == 0}">
-                        <td colspan="5" class="py-6 px-6 text-center text-gray-500 font-medium">No hay usuarios registrados.</td>
+                    <tr th:if="${#lists.isEmpty(usuarios)}">
+                        <td colspan="5" class="py-6 px-6 text-center text-gray-500 font-medium">No se encontraron usuarios.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
 
-            <nav th:if="${pageNumbers}" class="mt-8">
+            <nav th:if="${not filtrado and usuariosPaginados != null}" class="mt-8">
                 <ul class="flex justify-center space-x-2">
-                    <li th:each="pageNum : ${pageNumbers}"
+                    <li th:each="pageNum : ${#numbers.sequence(1, usuariosPaginados.totalPages)}"
                         class="page-item"
-                        th:classappend="${pageNum == usuarios.number + 1} ? 'bg-indigo-600 text-white rounded-full' : 'bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600'">
-                        <a class="py-2 px-4 block transition duration-150" th:href="@{/usuarios(page=${pageNum}, size=${usuarios.size})}" th:text="${pageNum}"></a>
+                        th:classappend="${pageNum == usuariosPaginados.number + 1} ? 'bg-indigo-600 text-white rounded-full' : 'bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600'">
+                        <a class="py-2 px-4 block transition duration-150" th:href="@{/usuarios(page=${pageNum}, size=${usuariosPaginados.size})}" th:text="${pageNum}"></a>
                     </li>
                 </ul>
             </nav>
