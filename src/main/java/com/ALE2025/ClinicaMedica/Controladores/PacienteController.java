@@ -28,15 +28,31 @@ public class PacienteController {
 
     @GetMapping
     public String index(Model model,
-                        @RequestParam("page") Optional<Integer> page,
-                        @RequestParam("size") Optional<Integer> size) {
+                        @RequestParam(value = "page", required = false) Optional<Integer> page,
+                        @RequestParam(value = "size", required = false) Optional<Integer> size,
+                        @RequestParam(value = "nombre", required = false) String nombre,
+                        @RequestParam(value = "apellido", required = false) String apellido,
+                        @RequestParam(value = "telefono", required = false) String telefono,
+                        @RequestParam(value = "dui", required = false) String dui) {
 
         int currentPage = page.orElse(1) - 1;
         int pageSize = size.orElse(5);
         Pageable pageable = PageRequest.of(currentPage, pageSize);
 
-        Page<Paciente> pacientes = pacienteService.buscarTodosPaginados(pageable);
+        Page<Paciente> pacientes;
+
+        // Si se proporcionan filtros, realiza la búsqueda, de lo contrario, muestra todos los pacientes paginados
+        if (nombre != null || apellido != null || dui != null || telefono != null) {
+            pacientes = pacienteService.buscarPorCriterios(nombre, apellido, dui, telefono, pageable);
+        } else {
+            pacientes = pacienteService.buscarTodosPaginados(pageable);
+        }
+        
         model.addAttribute("pacientes", pacientes);
+        model.addAttribute("nombre", nombre);
+        model.addAttribute("apellido", apellido);
+        model.addAttribute("dui", dui);
+        model.addAttribute("telefono", telefono);
 
         int totalPages = pacientes.getTotalPages();
         if (totalPages > 0) {

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Service
 public class PacienteService implements IPacienteService {
-
+    
     @Autowired
     private IPacienteRepository pacienteRepository;
 
@@ -22,6 +22,12 @@ public class PacienteService implements IPacienteService {
         return pacienteRepository.findAll(pageable);
     }
     
+    // Implementación del nuevo método de búsqueda
+    @Override
+    public Page<Paciente> buscarPorCriterios(String nombre, String apellido, String dui, String telefono, Pageable pageable) {
+        return pacienteRepository.findByNombreContainingIgnoreCaseAndApellidoContainingIgnoreCaseAndDUIContainingIgnoreCaseAndTelefonoContainingIgnoreCase(nombre, apellido, dui, telefono, pageable);
+    }
+
     @Override
     public List<Paciente> obtenerTodos() {
         return pacienteRepository.findAll();

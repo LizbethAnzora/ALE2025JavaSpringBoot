@@ -10,6 +10,9 @@ import java.util.Optional;
 public interface IPacienteService {
     Page<Paciente> buscarTodosPaginados(Pageable pageable);
     
+    // Nuevo método para buscar con filtros
+    Page<Paciente> buscarPorCriterios(String nombre, String apellido, String dui, String telefono, Pageable pageable);
+
     List<Paciente> obtenerTodos();
 
     Optional<Paciente> buscarPorId(Integer id);
@@ -17,4 +20,6 @@ public interface IPacienteService {
     Paciente crearOEditar(Paciente paciente);
 
     void eliminarPorId(Integer id);
+
+   
 }

@@ -48,6 +48,34 @@
                 </a>
             </div>
 
+            <form th:action="@{/pacientes}" method="get" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-inner">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label for="nombre" class="block text-white mb-1">Nombre del paciente</label>
+                        <input type="text" id="nombre" name="nombre" th:value="${nombre}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="apellido" class="block text-white mb-1">Apellido del paciente</label>
+                        <input type="text" id="apellido" name="apellido" th:value="${apellido}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="telefono" class="block text-white mb-1">Teléfono</label>
+                        <input type="text" id="telefono" name="telefono" th:value="${telefono}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="dui" class="block text-white mb-1">DUI del paciente</label>
+                        <input type="text" id="dui" name="dui" th:value="${dui}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-start space-x-4">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center">
+                        <i class="fas fa-search mr-2"></i> Buscar
+                    </button>
+                    <a th:href="@{/pacientes}" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center">
+                        <i class="fas fa-sync-alt mr-2"></i> Limpiar
+                    </a>
+                </div>
+            </form>
             <div class="overflow-x-auto rounded-lg shadow-inner">
                 <table class="w-full text-left text-sm text-gray-400">
                     <thead class="text-xs text-gray-100 uppercase bg-gray-700">
@@ -93,7 +121,9 @@
                     <li th:each="pageNum : ${pageNumbers}"
                         class="page-item"
                         th:classappend="${pageNum == pacientes.number + 1} ? 'bg-indigo-600 text-white rounded-full' : 'bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600'">
-                        <a class="py-2 px-4 block transition duration-150" th:href="@{/pacientes(page=${pageNum}, size=${pacientes.size})}" th:text="${pageNum}"></a>
+                        <a class="py-2 px-4 block transition duration-150"
+                           th:href="@{/pacientes(page=${pageNum}, size=${pacientes.size}, nombre=${nombre}, apellido=${apellido}, dui=${dui})}"
+                           th:text="${pageNum}"></a>
                     </li>
                 </ul>
             </nav>
