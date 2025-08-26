@@ -1,10 +1,7 @@
 package com.ALE2025.ClinicaMedica.Controladores;
 
-import com.ALE2025.ClinicaMedica.Modelos.Especialidad;
-import com.ALE2025.ClinicaMedica.Modelos.Medico;
 import com.ALE2025.ClinicaMedica.Modelos.Horario;
 import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IMedicoService;
-import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IEspecialidadService;
 import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IHorarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +30,6 @@ public class HorarioController {
     @Autowired
     private IMedicoService medicoService;
 
-    @Autowired
-    private IEspecialidadService especialidadService;
 
     @GetMapping
     public String index(Model model,
