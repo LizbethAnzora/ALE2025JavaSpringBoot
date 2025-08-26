@@ -8,8 +8,18 @@ import java.util.Optional;
 
 public interface IHorarioService {
     Page<Horario> buscarTodosPaginados(Pageable pageable);
+
+    Page<Horario> buscarPorFiltrosPaginado(
+            String nombreMedico,
+            String apellidoMedico,
+            String nombreEspecialidad,
+            Pageable pageable);
+
     List<Horario> obtenerTodos();
+
     Optional<Horario> buscarPorId(Integer id);
+
     Horario crearOEditar(Horario horario);
+
     void eliminarPorId(Integer id);
 }

@@ -1,9 +1,11 @@
 package com.ALE2025.ClinicaMedica.Controladores;
 
+import com.ALE2025.ClinicaMedica.Modelos.Especialidad;
+import com.ALE2025.ClinicaMedica.Modelos.Medico;
 import com.ALE2025.ClinicaMedica.Modelos.Horario;
-import com.ALE2025.ClinicaMedica.Modelos.DiaSemana;
-import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IHorarioService;
 import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IMedicoService;
+import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IEspecialidadService;
+import com.ALE2025.ClinicaMedica.Servicios.Interfaces.IHorarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -19,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.Arrays;
 
 @Controller
 @RequestMapping("/horarios")
@@ -31,17 +33,40 @@ public class HorarioController {
     @Autowired
     private IMedicoService medicoService;
 
+    @Autowired
+    private IEspecialidadService especialidadService;
+
     @GetMapping
     public String index(Model model,
                         @RequestParam("page") Optional<Integer> page,
-                        @RequestParam("size") Optional<Integer> size) {
+                        @RequestParam("size") Optional<Integer> size,
+                        @RequestParam(value = "nombreMedico", required = false) String nombreMedico,
+                        @RequestParam(value = "apellidoMedico", required = false) String apellidoMedico,
+                        @RequestParam(value = "nombreEspecialidad", required = false) String nombreEspecialidad) {
 
         int currentPage = page.orElse(1) - 1;
         int pageSize = size.orElse(5);
         Pageable pageable = PageRequest.of(currentPage, pageSize);
 
-        Page<Horario> horarios = horarioService.buscarTodosPaginados(pageable);
+        Page<Horario> horarios;
+        boolean isFiltered = StringUtils.hasText(nombreMedico) ||
+                             StringUtils.hasText(apellidoMedico) ||
+                             StringUtils.hasText(nombreEspecialidad);
+
+        if (isFiltered) {
+            horarios = horarioService.buscarPorFiltrosPaginado(
+                    nombreMedico,
+                    apellidoMedico,
+                    nombreEspecialidad,
+                    pageable);
+        } else {
+            horarios = horarioService.buscarTodosPaginados(pageable);
+        }
+
         model.addAttribute("horarios", horarios);
+        model.addAttribute("nombreMedico", nombreMedico);
+        model.addAttribute("apellidoMedico", apellidoMedico);
+        model.addAttribute("nombreEspecialidad", nombreEspecialidad);
 
         int totalPages = horarios.getTotalPages();
         if (totalPages > 0) {
@@ -57,7 +82,7 @@ public class HorarioController {
     public String create(Model model) {
         model.addAttribute("horario", new Horario());
         model.addAttribute("medicos", medicoService.obtenerTodos());
-        model.addAttribute("diasSemana", DiaSemana.values());
+        model.addAttribute("diasSemana", Horario.DiaSemana.values());
         model.addAttribute("action", "create");
         return "horario/mant";
     }
@@ -67,7 +92,7 @@ public class HorarioController {
         Horario horario = horarioService.buscarPorId(id).orElseThrow();
         model.addAttribute("horario", horario);
         model.addAttribute("medicos", medicoService.obtenerTodos());
-        model.addAttribute("diasSemana", DiaSemana.values());
+        model.addAttribute("diasSemana", Horario.DiaSemana.values());
         model.addAttribute("action", "edit");
         return "horario/mant";
     }
@@ -76,6 +101,8 @@ public class HorarioController {
     public String view(@PathVariable Integer id, Model model) {
         Horario horario = horarioService.buscarPorId(id).orElseThrow();
         model.addAttribute("horario", horario);
+        model.addAttribute("medicos", medicoService.obtenerTodos());
+        model.addAttribute("diasSemana", Horario.DiaSemana.values());
         model.addAttribute("action", "view");
         return "horario/mant";
     }
@@ -84,6 +111,8 @@ public class HorarioController {
     public String deleteConfirm(@PathVariable Integer id, Model model) {
         Horario horario = horarioService.buscarPorId(id).orElseThrow();
         model.addAttribute("horario", horario);
+        model.addAttribute("medicos", medicoService.obtenerTodos());
+        model.addAttribute("diasSemana", Horario.DiaSemana.values());
         model.addAttribute("action", "delete");
         return "horario/mant";
     }
@@ -92,9 +121,9 @@ public class HorarioController {
     public String saveNuevo(@Valid @ModelAttribute Horario horario, BindingResult result,
                             RedirectAttributes redirect, Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("medicos", medicoService.obtenerTodos());
-            model.addAttribute("diasSemana", DiaSemana.values());
             model.addAttribute("action", "create");
+            model.addAttribute("medicos", medicoService.obtenerTodos());
+            model.addAttribute("diasSemana", Horario.DiaSemana.values());
             return "horario/mant";
         }
         horarioService.crearOEditar(horario);
@@ -106,9 +135,9 @@ public class HorarioController {
     public String saveEditado(@Valid @ModelAttribute Horario horario, BindingResult result,
                               RedirectAttributes redirect, Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("medicos", medicoService.obtenerTodos());
-            model.addAttribute("diasSemana", DiaSemana.values());
             model.addAttribute("action", "edit");
+            model.addAttribute("medicos", medicoService.obtenerTodos());
+            model.addAttribute("diasSemana", Horario.DiaSemana.values());
             return "horario/mant";
         }
         horarioService.crearOEditar(horario);

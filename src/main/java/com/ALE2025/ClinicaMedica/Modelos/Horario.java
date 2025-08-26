@@ -2,7 +2,7 @@ package com.ALE2025.ClinicaMedica.Modelos;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import java.time.DayOfWeek;
+import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalTime;
 
 @Entity
@@ -13,7 +13,7 @@ public class Horario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "medico_id", nullable = false)
     @NotNull(message = "El médico es requerido")
     private Medico medico;
@@ -25,13 +25,20 @@ public class Horario {
 
     @Column(name = "horaInicio", nullable = false)
     @NotNull(message = "La hora de inicio es requerida")
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime horaInicio;
 
     @Column(name = "horaFin", nullable = false)
-    @NotNull(message = "La hora de fin es requerida")
+    @NotNull(message = "La hora de finalización es requerida")
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime horaFin;
 
-    // Getters y Setters
+    public enum DiaSemana {
+        Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo
+    }
+
+    public Horario() {
+    }
 
     public Integer getId() {
         return id;

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +19,19 @@ public class HorarioService implements IHorarioService {
     @Override
     public Page<Horario> buscarTodosPaginados(Pageable pageable) {
         return horarioRepository.findAll(pageable);
+    }
+    
+    @Override
+    public Page<Horario> buscarPorFiltrosPaginado(
+            String nombreMedico,
+            String apellidoMedico,
+            String nombreEspecialidad,
+            Pageable pageable) {
+        return horarioRepository.findByFilters(
+                nombreMedico,
+                apellidoMedico,
+                nombreEspecialidad,
+                pageable);
     }
 
     @Override

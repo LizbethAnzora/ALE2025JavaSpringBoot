@@ -1,24 +1,38 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/_mainLayout}">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/_mainLayout}">
 <head>
-    <title layout:fragment="title" th:text="'Horario - ' + ${action}">Horario</title>
+    <title layout:fragment="title" th:text="'Horario - ' + ${action}"></title>
+    <style layout:fragment="style-add">
+        .swal2-dark {
+            background-color: #33405c !important;
+            color: #ffffff !important;
+            border: 1px solid #33405c;
+        }
+        .swal2-title {
+            color: #ffffff !important;
+        }
+        .swal2-content {
+            color: #c0c0c0 !important;
+        }
+        .swal2-icon {
+            border-color: #c0c0c0 !important;
+        }
+        .swal2-confirm.swal2-custom-button-delete {
+            background-color: #f44336 !important;
+            color: #ffffff !important;
+        }
+        .swal2-cancel.swal2-custom-button-cancel {
+            background-color: #3e4b65 !important;
+            color: #ffffff !important;
+        }
+        .swal2-confirm.swal2-custom-button-save {
+            background-color: #6a6a9b !important;
+            color: #ffffff !important;
+        }
+    </style>
 </head>
 <body>
 <section layout:fragment="content" class="bg-[#111828] min-h-screen py-12">
-    <div th:if="${error != null}">
-        <script>
-            Swal.fire({
-                title: 'Error',
-                text: '[[ ${error} ]]',
-                icon: 'error',
-                confirmButtonText: 'Aceptar',
-                customClass: {
-                    popup: 'bg-gray-800 text-white',
-                    confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full'
-                }
-            });
-        </script>
-    </div>
     <div class="container mx-auto px-4 mt-5">
         <div class="bg-[#293145] text-white shadow-xl rounded-xl border border-transparent p-6 md:p-8">
             <div class="border-b border-transparent pb-0 mb-6">
@@ -36,36 +50,51 @@
                         method="post"
                 >
                     <input type="hidden" th:if="${horario.id != null}" th:field="*{id}" />
+
                     <div class="mb-4">
-                        <label class="block text-white mb-2">Médico</label>
-                        <span th:if="${action == 'view' || action == 'delete'}" th:text="${horario.medico.nombre} + ' ' + ${horario.medico.apellido}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
-                        <select
-                                th:if="${action != 'view' && action != 'delete'}"
-                                id="medico"
-                                th:field="*{medico.id}"
-                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
-                                th:attr="disabled=${action=='view' or action=='delete'}"
-                        >
-                            <option value="">Seleccione un médico</option>
-                            <option th:each="med : ${medicos}" th:value="${med.id}" th:text="${med.nombre} + ' ' + ${med.apellido}" th:selected="${horario.medico != null and horario.medico.id == med.id}"></option>
-                        </select>
+                        <label for="medico" class="block text-white mb-2">Médico</label>
+                        <div th:if="${action == 'create' or action == 'edit'}">
+                            <select
+                                    th:field="*{medico}"
+                                    id="medico"
+                                    class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                            >
+                                <option value="">Seleccione un médico</option>
+                                <option th:each="m : ${medicos}" th:value="${m.id}" th:text="${m.nombre + ' ' + m.apellido}" th:selected="${horario.medico != null and horario.medico.id == m.id}"></option>
+                            </select>
+                        </div>
+                        <div th:if="${action == 'view' or action == 'delete'}">
+                            <input type="text"
+                                   th:value="${horario.medico != null ? horario.medico.nombre + ' ' + horario.medico.apellido : ''}"
+                                   readonly
+                                   class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight"
+                            />
+                        </div>
                         <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('medico')}" th:errors="*{medico}"></div>
                     </div>
+
                     <div class="mb-4">
-                        <label class="block text-white mb-2">Día de la Semana</label>
-                        <span th:if="${action == 'view' || action == 'delete'}" th:text="${horario.diaSemana}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
-                        <select
-                                th:if="${action != 'view' && action != 'delete'}"
-                                id="diaSemana"
-                                th:field="*{diaSemana}"
-                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
-                                th:attr="disabled=${action=='view' or action=='delete'}"
-                        >
-                            <option value="">Seleccione el día</option>
-                            <option th:each="dia : ${diasSemana}" th:value="${dia}" th:text="${dia}" th:selected="${horario.diaSemana != null and horario.diaSemana == dia}"></option>
-                        </select>
+                        <label for="diaSemana" class="block text-white mb-2">Día de la Semana</label>
+                        <div th:if="${action == 'create' or action == 'edit'}">
+                            <select
+                                    th:field="*{diaSemana}"
+                                    id="diaSemana"
+                                    class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                            >
+                                <option value="">Seleccione un día</option>
+                                <option th:each="dia : ${diasSemana}" th:value="${dia}" th:text="${dia}" th:selected="${horario.diaSemana != null and horario.diaSemana.toString() == dia.toString()}"></option>
+                            </select>
+                        </div>
+                        <div th:if="${action == 'view' or action == 'delete'}">
+                            <input type="text"
+                                   th:value="${horario.diaSemana != null ? horario.diaSemana : ''}"
+                                   readonly
+                                   class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight"
+                            />
+                        </div>
                         <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('diaSemana')}" th:errors="*{diaSemana}"></div>
                     </div>
+
                     <div class="mb-4">
                         <label for="horaInicio" class="block text-white mb-2">Hora de Inicio</label>
                         <input
@@ -77,8 +106,9 @@
                         />
                         <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('horaInicio')}" th:errors="*{horaInicio}"></div>
                     </div>
+
                     <div class="mb-4">
-                        <label for="horaFin" class="block text-white mb-2">Hora de Fin</label>
+                        <label for="horaFin" class="block text-white mb-2">Hora de Finalización</label>
                         <input
                                 type="time"
                                 th:field="*{horaFin}"
@@ -119,5 +149,73 @@
         </div>
     </div>
 </section>
+
+<script layout:fragment="script-add">
+    document.addEventListener('DOMContentLoaded', function () {
+        const error = '[[${error}]]';
+        if (error && error.trim() !== '') {
+            Swal.fire({
+                title: 'Error',
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'swal2-dark',
+                    confirmButton: 'swal2-custom-button-delete',
+                },
+            });
+        }
+        const form = document.getElementById('formHorario');
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                const action = form.getAttribute('th:action');
+                const isCreateOrEdit = action.includes('create') || action.includes('edit');
+                if (isCreateOrEdit) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '¿Confirmar Guardado?',
+                        text: 'Se guardarán los cambios.',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonColor: '#6a6a9b',
+                        cancelButtonColor: '#3e4b65',
+                        confirmButtonText: 'Sí, guardar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            popup: 'swal2-dark',
+                            confirmButton: 'swal2-custom-button-save',
+                            cancelButton: 'swal2-custom-button-cancel',
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                } else if (action.includes('delete')) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '¿Confirmar Eliminación?',
+                        text: 'Esta acción no se puede deshacer.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#f44336',
+                        cancelButtonColor: '#3e4b65',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            popup: 'swal2-dark',
+                            confirmButton: 'swal2-custom-button-delete',
+                            cancelButton: 'swal2-custom-button-cancel',
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
