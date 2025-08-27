@@ -1,44 +1,45 @@
 package com.ALE2025.ClinicaMedica.Modelos;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.sql.Time;
+import jakarta.validation.constraints.*;
 import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "Citas")
 public class Cita {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "paciente_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "paciente_id", nullable = false)
+    @NotNull(message = "El paciente es requerido")
     private Paciente paciente;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "medico_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "medico_id", nullable = false)
+    @NotNull(message = "El médico es requerido")
     private Medico medico;
 
     @NotNull(message = "La fecha de la cita es requerida")
-    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date fechaCita;
 
     @NotNull(message = "La hora de la cita es requerida")
-    private Time horaCita;
+    @DateTimeFormat(pattern = "HH:mm")
+    private Date horaCita;
 
     @NotNull(message = "El costo de la consulta es requerido")
-    private BigDecimal costoConsulta;
+    @Min(value = 0, message = "El costo no puede ser negativo")
+    private Double costoConsulta;
 
-    @Enumerated(EnumType.STRING)
-    private EstadoCita estado;
+    @NotBlank(message = "El estado es requerido")
+    @Size(max = 20, message = "El estado no puede tener más de 20 caracteres")
+    private String estado;
 
-
-    public enum EstadoCita {
-        Pendiente, Confirmada, Cancelada, Finalizada
-    }
-
+    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -71,28 +72,27 @@ public class Cita {
         this.fechaCita = fechaCita;
     }
 
-    public Time getHoraCita() {
+    public Date getHoraCita() {
         return horaCita;
     }
 
-    public void setHoraCita(Time horaCita) {
+    public void setHoraCita(Date horaCita) {
         this.horaCita = horaCita;
     }
 
-    public BigDecimal getCostoConsulta() {
+    public Double getCostoConsulta() {
         return costoConsulta;
     }
 
-    public void setCostoConsulta(BigDecimal costoConsulta) {
+    public void setCostoConsulta(Double costoConsulta) {
         this.costoConsulta = costoConsulta;
     }
 
-    public EstadoCita getEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(EstadoCita estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
-
 }
