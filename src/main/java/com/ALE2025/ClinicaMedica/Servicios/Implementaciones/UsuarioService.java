@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -40,8 +41,20 @@ public class UsuarioService implements IUsuarioService {
         return usuarioRepository.findById(id);
     }
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public Usuario crearOEditar(Usuario usuario) {
+        if (usuario.getId() == null || (usuario.getContraseña() != null && !usuario.getContraseña().isEmpty())) {
+            String hashedPassword = passwordEncoder.encode(usuario.getContraseña());
+            usuario.setContraseña(hashedPassword);
+        } else {
+            Optional<Usuario> usuarioExistente = usuarioRepository.findById(usuario.getId());
+            if (usuarioExistente.isPresent()) {
+                usuario.setContraseña(usuarioExistente.get().getContraseña());
+            }
+        }
         return usuarioRepository.save(usuario);
     }
 
@@ -49,17 +62,17 @@ public class UsuarioService implements IUsuarioService {
     public void eliminarPorId(Integer id) {
         usuarioRepository.deleteById(id);
     }
-    
+
     @Override
     public List<Usuario> buscarConFiltros(String nombre, String email, Rol rol, EstadoUsuario estado) {
         Specification<Usuario> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            
+
             // Añade el filtro de nombre si no es nulo o vacío
             if (StringUtils.hasText(nombre)) {
                 predicates.add(criteriaBuilder.like(root.get("nombre"), "%" + nombre + "%"));
             }
-            
+
             // Añade el filtro de email si no es nulo o vacío
             if (StringUtils.hasText(email)) {
                 predicates.add(criteriaBuilder.like(root.get("email"), "%" + email + "%"));

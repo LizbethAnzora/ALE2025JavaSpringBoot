@@ -45,7 +45,7 @@
           <div class="card-body">
             <form
               id="formUsuario"
-              th:action="@{${action == 'create' ? '/usuarios/create' : action == 'edit' ? '/usuarios/edit' : action == 'delete' ? '/usuarios/delete' : '#'}}"
+              th:action="@{${action == 'create' ? '/usuarios/create' : action == 'edit' ? '/usuarios/update' : action == 'delete' ? '/usuarios/delete' : '#'}}"
               th:object="${usuario}"
               method="post"
             >
@@ -75,7 +75,7 @@
                 <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
               </div>
 
-              <div class="mb-4" th:if="${action == 'create' or action == 'edit'}">
+              <div class="mb-4" th:if="${action == 'create'}">
                 <label for="contraseña" class="block text-white mb-2">Contraseña</label>
                 <input
                   type="password"
@@ -85,11 +85,11 @@
                 />
                 <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('contraseña')}" th:errors="*{contraseña}"></div>
               </div>
-              
+                
               <div class="mb-4">
                 <label for="rol" class="block text-white mb-2">Rol</label>
                 <select th:field="*{rol}" id="rol" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25" th:attr="disabled=${action=='view' or action=='delete'}">
-                    <option th:each="rolOpt : ${roles}" th:value="${rolOpt.id}" th:text="${rolOpt.nombre}" th:selected="${usuario.rol != null and usuario.rol.id == rolOpt.id}"></option>
+                  <option th:each="rolOpt : ${roles}" th:value="${rolOpt.id}" th:text="${rolOpt.nombre}" th:selected="${usuario.rol != null and usuario.rol.id == rolOpt.id}"></option>
                 </select>
                 <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('rol')}" th:errors="*{rol}"></div>
               </div>
@@ -97,7 +97,7 @@
               <div class="mb-4">
                 <label for="estado" class="block text-white mb-2">Estado</label>
                 <select th:field="*{estado}" id="estado" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25" th:attr="disabled=${action=='view' or action=='delete'}">
-                    <option th:each="estadoOpt : ${T(com.ALE2025.ClinicaMedica.Modelos.Usuario.EstadoUsuario).values()}" th:value="${estadoOpt}" th:text="${estadoOpt.name()}"></option>
+                  <option th:each="estadoOpt : ${T(com.ALE2025.ClinicaMedica.Modelos.Usuario.EstadoUsuario).values()}" th:value="${estadoOpt}" th:text="${estadoOpt.name()}"></option>
                 </select>
                 <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
               </div>
@@ -152,7 +152,7 @@
         if (form) {
           form.addEventListener('submit', function (event) {
             const action = form.getAttribute('th:action');
-            const isCreateOrEdit = action.includes('create') || action.includes('edit');
+            const isCreateOrEdit = action.includes('create') || action.includes('update');
             if (isCreateOrEdit) {
               event.preventDefault();
               // Aca van las validaciones específicas para Usuario si fueran necesarias
