@@ -21,7 +21,7 @@ public class HistorialService implements IHistorialService {
     public Page<Historial> buscarTodosPaginados(Pageable pageable) {
         return historialRepository.findAll(pageable);
     }
-    
+
     @Override
     public Page<Historial> buscarPorFiltrosPaginado(
             String nombreMedico,
@@ -57,5 +57,20 @@ public class HistorialService implements IHistorialService {
     @Override
     public void eliminarPorId(Integer id) {
         historialRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Historial> buscarPorFiltros(
+            String nombreMedico,
+            String nombreEspecialidad,
+            String nombrePaciente,
+            String apellidoPaciente,
+            String duiPaciente) {
+        return historialRepository.findByFiltersWithoutPagination(
+                nombreMedico,
+                nombreEspecialidad,
+                nombrePaciente,
+                apellidoPaciente,
+                duiPaciente);
     }
 }

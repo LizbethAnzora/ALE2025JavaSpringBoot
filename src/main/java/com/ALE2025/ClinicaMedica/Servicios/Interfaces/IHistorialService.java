@@ -16,7 +16,14 @@ public interface IHistorialService {
             String apellidoPaciente,
             String duiPaciente,
             Pageable pageable);
-    
+
+    List<Historial> buscarPorFiltros(
+            String nombreMedico,
+            String nombreEspecialidad,
+            String nombrePaciente,
+            String apellidoPaciente,
+            String duiPaciente);
+
     List<Historial> obtenerTodos();
 
     Optional<Historial> buscarPorId(Integer id);
