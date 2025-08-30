@@ -81,13 +81,15 @@
                     </div>
                     <div class="mb-4">
                         <label class="block text-white mb-2">Especialidad</label>
+                        <div th:if="${action == 'delete'}" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight">
+                            <span th:text="${medico.especialidad != null ? medico.especialidad.nombre : 'N/A'}"></span>
+                        </div>
                         <span th:if="${action == 'view'}" th:text="${medico.especialidad != null ? medico.especialidad.nombre : 'N/A'}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
                         <select
-                                th:if="${action != 'view'}"
+                                th:if="${action != 'view' and action != 'delete'}"
                                 id="especialidad"
                                 th:field="*{especialidad.id}"
                                 class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
-                                th:attr="disabled=${action=='view' or action=='delete'}"
                         >
                             <option value="">Seleccione una especialidad</option>
                             <option th:each="esp : ${especialidades}" th:value="${esp.id}" th:text="${esp.nombre}" th:selected="${medico.especialidad != null and medico.especialidad.id == esp.id}"></option>
@@ -108,13 +110,15 @@
                     </div>
                     <div class="mb-4">
                         <label class="block text-white mb-2">Género</label>
+                        <div th:if="${action == 'delete'}" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight">
+                            <span th:text="${medico.genero}"></span>
+                        </div>
                         <span th:if="${action == 'view'}" th:text="${medico.genero}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
                         <select
-                                th:if="${action != 'view'}"
+                                th:if="${action != 'view' and action != 'delete'}"
                                 id="genero"
                                 th:field="*{genero}"
                                 class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
-                                th:attr="disabled=${action=='view' or action=='delete'}"
                         >
                             <option value="">Seleccione el género</option>
                             <option th:each="gen : ${generos}" th:value="${gen}" th:text="${gen}" th:selected="${medico.genero != null and medico.genero == gen}"></option>
