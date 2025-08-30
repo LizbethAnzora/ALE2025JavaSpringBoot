@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
@@ -33,18 +34,37 @@ public class MedicoController {
 
     @GetMapping
     public String index(Model model,
-                        @RequestParam("page") Optional<Integer> page,
-                        @RequestParam("size") Optional<Integer> size) {
+                        @RequestParam(value = "page", required = false) Optional<Integer> page,
+                        @RequestParam(value = "size", required = false) Optional<Integer> size,
+                        @RequestParam(value = "nombre", required = false) String nombre,
+                        @RequestParam(value = "apellido", required = false) String apellido,
+                        @RequestParam(value = "especialidad", required = false) String especialidad,
+                        @RequestParam(value = "dui", required = false) String dui) {
 
         int currentPage = page.orElse(1) - 1;
         int pageSize = size.orElse(5);
-        Pageable pageable = PageRequest.of(currentPage, pageSize);
+        
+        Page<Medico> medicos;
+        
+        // Determina si se está realizando una búsqueda con filtros
+        if (nombre != null || apellido != null || especialidad != null || dui != null) {
+            List<Medico> resultados = medicoService.buscarMedicos(nombre, apellido, especialidad, dui);
+            medicos = new PageImpl<>(resultados); // Envuelve los resultados en un objeto Page
+        } else {
+            // Si no hay filtros, se utiliza la paginación normal
+            Pageable pageable = PageRequest.of(currentPage, pageSize);
+            medicos = medicoService.buscarTodosPaginados(pageable);
+        }
 
-        Page<Medico> medicos = medicoService.buscarTodosPaginados(pageable);
         model.addAttribute("medicos", medicos);
+        model.addAttribute("nombre", nombre);
+        model.addAttribute("apellido", apellido);
+        model.addAttribute("especialidad", especialidad);
+        model.addAttribute("dui", dui);
 
-        int totalPages = medicos.getTotalPages();
-        if (totalPages > 0) {
+        // Lógica de paginación solo si no se aplicaron filtros
+        if (medicos.hasContent() && medicos.getTotalPages() > 0) {
+            int totalPages = medicos.getTotalPages();
             List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
                     .boxed().collect(Collectors.toList());
             model.addAttribute("pageNumbers", pageNumbers);

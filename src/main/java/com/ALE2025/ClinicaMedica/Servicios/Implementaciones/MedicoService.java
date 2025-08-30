@@ -32,6 +32,12 @@ public class MedicoService implements IMedicoService {
     public List<Medico> obtenerTodos() {
         return medicoRepository.findAll();
     }
+    
+    // Implementación del nuevo método
+    @Override
+    public List<Medico> buscarMedicos(String nombre, String apellido, String especialidad, String dui) {
+        return medicoRepository.buscarPorFiltros(nombre, apellido, especialidad, dui);
+    }
 
     @Override
     public Optional<Medico> buscarPorId(Integer id) {

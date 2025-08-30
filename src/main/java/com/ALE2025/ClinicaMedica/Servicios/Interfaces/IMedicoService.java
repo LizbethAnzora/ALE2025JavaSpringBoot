@@ -12,6 +12,9 @@ public interface IMedicoService {
     Page<Medico> buscarTodosPaginados(Pageable pageable);
 
     List<Medico> obtenerTodos();
+    
+    // Nuevo método para la búsqueda de médicos
+    List<Medico> buscarMedicos(String nombre, String apellido, String especialidad, String dui);
 
     Optional<Medico> buscarPorId(Integer id);
 
