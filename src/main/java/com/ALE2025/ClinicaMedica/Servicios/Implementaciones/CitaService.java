@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,5 +41,10 @@ public class CitaService implements ICitaService {
     @Override
     public void eliminarPorId(Integer id) {
         citaRepository.deleteById(id);
+    }
+    
+    @Override
+    public List<Cita> buscarCitas(String nombrePaciente, String duiPaciente, String nombreMedico, Date fechaCita) {
+        return citaRepository.buscarConFiltros(nombrePaciente, duiPaciente, nombreMedico, fechaCita);
     }
 }

@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,22 +39,49 @@ public class CitaController {
 
     @GetMapping
     public String index(Model model,
-                        @RequestParam("page") Optional<Integer> page,
-                        @RequestParam("size") Optional<Integer> size) {
+                        @RequestParam(value = "page", required = false) Optional<Integer> page,
+                        @RequestParam(value = "size", required = false) Optional<Integer> size,
+                        @RequestParam(value = "nombrePaciente", required = false) String nombrePaciente,
+                        @RequestParam(value = "duiPaciente", required = false) String duiPaciente,
+                        @RequestParam(value = "nombreMedico", required = false) String nombreMedico,
+                        @RequestParam(value = "fechaCita", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaCita) {
 
-        int currentPage = page.orElse(1) - 1;
-        int pageSize = size.orElse(5);
-        Pageable pageable = PageRequest.of(currentPage, pageSize);
+        List<Cita> citas;
 
-        Page<Cita> citas = citaService.buscarTodosPaginados(pageable);
-        model.addAttribute("citas", citas);
+        // Verificar si hay algún filtro de búsqueda activo
+        if ((nombrePaciente != null && !nombrePaciente.isEmpty()) || (duiPaciente != null && !duiPaciente.isEmpty()) ||
+            (nombreMedico != null && !nombreMedico.isEmpty()) || fechaCita != null) {
 
-        int totalPages = citas.getTotalPages();
-        if (totalPages > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
-                    .boxed().collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
+            // Si hay filtros, realiza la búsqueda y no uses paginación
+            citas = citaService.buscarCitas(nombrePaciente, duiPaciente, nombreMedico, fechaCita);
+            model.addAttribute("citas", citas);
+            model.addAttribute("citasPaginadas", null); // Asegurarse de que el objeto de paginación es nulo
+
+        } else {
+            // Si no hay filtros, usa la paginación como antes
+            int currentPage = page.orElse(1) - 1;
+            int pageSize = size.orElse(5);
+            Pageable pageable = PageRequest.of(currentPage, pageSize);
+            Page<Cita> citasPaginadas = citaService.buscarTodosPaginados(pageable);
+
+            citas = citasPaginadas.getContent();
+            model.addAttribute("citas", citas);
+            model.addAttribute("citasPaginadas", citasPaginadas);
+
+            int totalPages = citasPaginadas.getTotalPages();
+            if (totalPages > 0) {
+                List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                        .boxed().collect(Collectors.toList());
+                model.addAttribute("pageNumbers", pageNumbers);
+            }
         }
+
+        // Mantener los valores de los filtros en la vista
+        model.addAttribute("nombrePaciente", nombrePaciente);
+        model.addAttribute("duiPaciente", duiPaciente);
+        model.addAttribute("nombreMedico", nombreMedico);
+        model.addAttribute("fechaCita", fechaCita);
+
         return "cita/index";
     }
 
@@ -81,22 +110,22 @@ public class CitaController {
 
     @GetMapping("/view/{id}")
     public String view(@PathVariable Integer id, Model model) {
-    Cita cita = citaService.buscarPorId(id).orElseThrow();
-    model.addAttribute("cita", cita);
-    model.addAttribute("action", "view");
-    model.addAttribute("pacientes", pacienteService.obtenerTodos());
-    model.addAttribute("medicos", medicoService.obtenerTodos());
-    return "cita/mant";
+        Cita cita = citaService.buscarPorId(id).orElseThrow();
+        model.addAttribute("cita", cita);
+        model.addAttribute("action", "view");
+        model.addAttribute("pacientes", pacienteService.obtenerTodos());
+        model.addAttribute("medicos", medicoService.obtenerTodos());
+        return "cita/mant";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteConfirm(@PathVariable Integer id, Model model) {
-    Cita cita = citaService.buscarPorId(id).orElseThrow();
-    model.addAttribute("cita", cita);
-    model.addAttribute("action", "delete");
-    model.addAttribute("pacientes", pacienteService.obtenerTodos());
-    model.addAttribute("medicos", medicoService.obtenerTodos());
-    return "cita/mant";
+        Cita cita = citaService.buscarPorId(id).orElseThrow();
+        model.addAttribute("cita", cita);
+        model.addAttribute("action", "delete");
+        model.addAttribute("pacientes", pacienteService.obtenerTodos());
+        model.addAttribute("medicos", medicoService.obtenerTodos());
+        return "cita/mant";
     }
 
     @PostMapping("/create")
@@ -137,8 +166,7 @@ public class CitaController {
     @GetMapping("/medico/{id}/costo")
     @ResponseBody
     public Double getMedicoCosto(@PathVariable Integer id) {
-    Optional<Medico> medico = medicoService.buscarPorId(id);
-    // Cambia getCosto_consulta() por getCostoConsulta()
-    return medico.map(Medico::getCostoConsulta).orElse(0.0);
-}
+        Optional<Medico> medico = medicoService.buscarPorId(id);
+        return medico.map(Medico::getCostoConsulta).orElse(0.0);
+    }
 }
