@@ -87,4 +87,9 @@ public class Historial {
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
     }
+
+    public String getDiagnostico() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getDiagnostico'");
+    }
 }
