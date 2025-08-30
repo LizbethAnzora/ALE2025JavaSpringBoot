@@ -68,30 +68,40 @@ public class UsuarioService implements IUsuarioService {
         Specification<Usuario> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Añade el filtro de nombre si no es nulo o vacío
             if (StringUtils.hasText(nombre)) {
                 predicates.add(criteriaBuilder.like(root.get("nombre"), "%" + nombre + "%"));
             }
 
-            // Añade el filtro de email si no es nulo o vacío
             if (StringUtils.hasText(email)) {
                 predicates.add(criteriaBuilder.like(root.get("email"), "%" + email + "%"));
             }
 
-            // Añade el filtro de rol si no es nulo
             if (rol != null) {
                 predicates.add(criteriaBuilder.equal(root.get("rol"), rol));
             }
 
-            // Añade el filtro de estado si no es nulo
             if (estado != null) {
                 predicates.add(criteriaBuilder.equal(root.get("estado"), estado));
             }
 
-            // Combina todas las condiciones con un 'AND'
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
         return usuarioRepository.findAll(spec);
+    }
+
+    
+
+
+        @Override
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email);
+    }
+
+    @Override
+    public void actualizarContraseña(Usuario usuario, String nuevaContraseña) {
+        String hashedPassword = passwordEncoder.encode(nuevaContraseña);
+        usuario.setContraseña(hashedPassword);
+        usuarioRepository.save(usuario);
     }
 }

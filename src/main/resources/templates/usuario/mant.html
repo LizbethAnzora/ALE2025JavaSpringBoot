@@ -38,14 +38,14 @@
           <div class="border-b border-transparent pb-0 mb-6">
             <h4
               class="mb-0 text-white font-bold text-2xl"
-              th:text="${action == 'create' ? 'Crear Nuevo Usuario' : action == 'edit' ? 'Editar Usuario' : action == 'view' ? 'Detalles del Usuario' : action == 'delete' ? 'Confirmar Eliminación' : 'Usuario'}"
+              th:text="${action == 'create' ? 'Crear Nuevo Usuario' : action == 'view' ? 'Detalles del Usuario' : action == 'delete' ? 'Confirmar Eliminación' : 'Usuario'}"
             ></h4>
           </div>
 
           <div class="card-body">
             <form
               id="formUsuario"
-              th:action="@{${action == 'create' ? '/usuarios/create' : action == 'edit' ? '/usuarios/update' : action == 'delete' ? '/usuarios/delete' : '#'}}"
+              th:action="@{${action == 'create' ? '/usuarios/create' : action == 'delete' ? '/usuarios/delete' : '#'}}"
               th:object="${usuario}"
               method="post"
             >
@@ -152,10 +152,9 @@
         if (form) {
           form.addEventListener('submit', function (event) {
             const action = form.getAttribute('th:action');
-            const isCreateOrEdit = action.includes('create') || action.includes('update');
+            const isCreateOrEdit = action.includes('create') || action.includes('edit');
             if (isCreateOrEdit) {
               event.preventDefault();
-              // Aca van las validaciones específicas para Usuario si fueran necesarias
               Swal.fire({
                 title: '¿Confirmar Guardado?',
                 text: 'Se guardarán los cambios.',

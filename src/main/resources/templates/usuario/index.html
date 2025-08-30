@@ -106,9 +106,6 @@
                                 <a th:href="@{/usuarios/view/{id}(id=${usuario.id})}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
                                     <i class="fas fa-eye mr-2"></i>Ver
                                 </a>
-                                <a th:href="@{/usuarios/edit/{id}(id=${usuario.id})}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
-                                    <i class="fas fa-pen mr-2"></i>Editar
-                                </a>
                                 <a th:href="@{/usuarios/delete/{id}(id=${usuario.id})}" onclick="return confirmarEliminacion(this.href);" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
                                     <i class="fas fa-trash-alt mr-2"></i>Eliminar
                                 </a>

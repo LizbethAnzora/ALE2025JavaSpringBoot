@@ -5,8 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface IUsuarioRepository extends JpaRepository<Usuario, Integer>, JpaSpecificationExecutor<Usuario> {
-    // No necesitas agregar métodos aquí para la búsqueda. 
-    // La funcionalidad ya viene en JpaSpecificationExecutor.
+    
+    // Método para buscar un usuario por su email
+    Optional<Usuario> findByEmail(String email);
 }
