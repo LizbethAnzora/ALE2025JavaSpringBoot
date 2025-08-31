@@ -36,13 +36,16 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        // Permitir acceso a recursos públicos y al login para CUALQUIER USUARIO
+                        // Permitir acceso a recursos públicos (CSS, JS, imágenes, etc.) y a la página de login
                         .requestMatchers("/css/**", "/js/**", "/assets/**", "/login").permitAll()
-                        // Permitir el acceso a la página de cambiar contraseña para CUALQUIER USUARIO
-                        .requestMatchers("/perfil/cambiar-contraseña").permitAll()
-                        // Reglas de acceso para roles específicos
+                        // Permitir el acceso a la página de cambiar contraseña
+                        .requestMatchers("/cambiar-contrasena").permitAll()
+                        // Reglas de acceso específicas
                         .requestMatchers("/historiales/**").hasRole("MEDICO")
-                        .requestMatchers("/roles/**", "/usuarios/**", "/pacientes/**", "/especialidades/**", "/medicos/**", "/horarios/**", "/citas/**").hasRole("ADMINISTRADOR")
+                        // Todos los usuarios autenticados pueden ver la página principal y su perfil
+                        .requestMatchers("/", "/perfil/**").authenticated()
+                        // Reglas generales (acceso del administrador a cualquier otra URL)
+                        .requestMatchers("/**").hasRole("ADMINISTRADOR")
                         // Cualquier otra URL que no coincida con lo anterior, requiere autenticación
                         .anyRequest().authenticated()
                 )
@@ -50,7 +53,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
                         .failureUrl("/login?error=true")
-                       .permitAll()
+                        .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
