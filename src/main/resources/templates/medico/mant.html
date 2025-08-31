@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title" th:text="'Médico - ' + ${action}">Médico</title>
+</head>
+<body>
+<section layout:fragment="content" class="bg-[#111828] min-h-screen py-12">
+    <div th:if="${error != null}">
+        <script>
+            Swal.fire({
+                title: 'Error',
+                text: '[[ ${error} ]]',
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full'
+                }
+            });
+        </script>
+    </div>
+    <div class="container mx-auto px-4 mt-5">
+        <div class="bg-[#293145] text-white shadow-xl rounded-xl border border-transparent p-6 md:p-8">
+            <div class="border-b border-transparent pb-0 mb-6">
+                <h4
+                        class="mb-0 text-white font-bold text-2xl"
+                        th:text="${action == 'create' ? 'Crear Nuevo Médico' : action == 'edit' ? 'Editar Médico' : action == 'view' ? 'Detalles del Médico' : action == 'delete' ? 'Confirmar Eliminación' : 'Médico'}"
+                ></h4>
+            </div>
+
+            <div class="card-body">
+                <form
+                        id="formMedico"
+                        th:action="@{${action == 'create' ? '/medicos/create' : action == 'edit' ? '/medicos/edit' : action == 'delete' ? '/medicos/delete' : '#'}}"
+                        th:object="${medico}"
+                        method="post"
+                        enctype="multipart/form-data"
+                >
+                    <input type="hidden" th:if="${medico.id != null}" th:field="*{id}" />
+                    <input type="hidden" th:if="${medico.imagenPath != null}" th:field="*{imagenPath}" />
+                    <div th:if="${action == 'edit' || action == 'view' || action == 'delete'}" class="mb-4">
+                        <label class="block text-white mb-2">Imagen Actual</label>
+                        <div class="flex items-center space-x-4">
+                            <img th:src="@{${medico.imagenPath}}" class="h-20 w-20 rounded-full object-cover" alt="Imagen del médico"/>
+                        </div>
+                    </div>
+                    <div class="mb-4" th:if="${action != 'view' and action != 'delete'}">
+                        <label for="imagenFile" class="block text-white mb-2">Subir Imagen</label>
+                        <input
+                                type="file"
+                                id="imagenFile"
+                                name="imagenFile"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                        />
+                        <div id="imagen-preview-container" class="mt-4 hidden">
+                            <label class="block text-white mb-2">Vista Previa</label>
+                            <img id="imagen-preview" src="#" alt="Vista Previa de la Imagen" class="h-20 w-20 rounded-full object-cover"/>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="nombre" class="block text-white mb-2">Nombre</label>
+                        <input
+                                type="text"
+                                th:field="*{nombre}"
+                                id="nombre"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="apellido" class="block text-white mb-2">Apellido</label>
+                        <input
+                                type="text"
+                                th:field="*{apellido}"
+                                id="apellido"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-white mb-2">Especialidad</label>
+                        <div th:if="${action == 'delete'}" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight">
+                            <span th:text="${medico.especialidad != null ? medico.especialidad.nombre : 'N/A'}"></span>
+                        </div>
+                        <span th:if="${action == 'view'}" th:text="${medico.especialidad != null ? medico.especialidad.nombre : 'N/A'}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
+                        <select
+                                th:if="${action != 'view' and action != 'delete'}"
+                                id="especialidad"
+                                th:field="*{especialidad.id}"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                        >
+                            <option value="">Seleccione una especialidad</option>
+                            <option th:each="esp : ${especialidades}" th:value="${esp.id}" th:text="${esp.nombre}" th:selected="${medico.especialidad != null and medico.especialidad.id == esp.id}"></option>
+                        </select>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('especialidad')}" th:errors="*{especialidad}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="costoConsulta" class="block text-white mb-2">Costo de Consulta</label>
+                        <input
+                                type="number"
+                                step="0.01"
+                                th:field="*{costoConsulta}"
+                                id="costoConsulta"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('costoConsulta')}" th:errors="*{costoConsulta}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-white mb-2">Género</label>
+                        <div th:if="${action == 'delete'}" class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight">
+                            <span th:text="${medico.genero}"></span>
+                        </div>
+                        <span th:if="${action == 'view'}" th:text="${medico.genero}" class="block w-full py-2 px-3 text-white border border-[#33405c] rounded-lg bg-[#1a233b]"></span>
+                        <select
+                                th:if="${action != 'view' and action != 'delete'}"
+                                id="genero"
+                                th:field="*{genero}"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                        >
+                            <option value="">Seleccione el género</option>
+                            <option th:each="gen : ${generos}" th:value="${gen}" th:text="${gen}" th:selected="${medico.genero != null and medico.genero == gen}"></option>
+                        </select>
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('genero')}" th:errors="*{genero}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="dui" class="block text-white mb-2">DUI</label>
+                        <input
+                                type="text"
+                                th:field="*{DUI}"
+                                id="dui"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('DUI')}" th:errors="*{DUI}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="telefono" class="block text-white mb-2">Teléfono</label>
+                        <input
+                                type="text"
+                                th:field="*{telefono}"
+                                id="telefono"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="direccion" class="block text-white mb-2">Dirección</label>
+                        <input
+                                type="text"
+                                th:field="*{direccion}"
+                                id="direccion"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="block text-white mb-2">Email</label>
+                        <input
+                                type="email"
+                                th:field="*{email}"
+                                id="email"
+                                class="w-full bg-[#1a233b] text-white border border-[#33405c] rounded-lg py-2 px-3 leading-tight focus:outline-none focus:bg-[#3e4b65] focus:border-[#6a6a9b] focus:ring focus:ring-[#6a6a9b] focus:ring-opacity-25"
+                                th:attr="readonly=${action=='view' or action=='delete'}"
+                        />
+                        <div class="text-[#ff6b6b] mt-1 text-sm" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                    </div>
+
+                    <div th:if="${action != 'view'}" class="mt-8 flex space-x-4">
+                        <button
+                                type="submit"
+                                class="font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                                th:classappend="${action == 'delete' ? 'bg-[#F44336] hover:bg-[#d32f2f] text-white' : 'bg-[#6a6a9b] hover:bg-[#535380] text-white'}"
+                        >
+                            <span th:if="${action == 'delete'}"><i class="fas fa-trash-alt mr-2"></i> Confirmar Eliminación</span>
+                            <span th:if="${action != 'delete'}"><i class="fas fa-save mr-2"></i> Guardar</span>
+                        </button>
+                        <a
+                                th:href="@{/medicos}"
+                                class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            <i class="fas fa-times mr-2"></i> Cancelar
+                        </a>
+                    </div>
+
+                    <div th:if="${action == 'view'}" class="mt-8">
+                        <a
+                                th:href="@{/medicos}"
+                                class="bg-[#3e4b65] hover:bg-[#556680] text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            <i class="fas fa-arrow-left mr-2"></i> Regresar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script layout:fragment="script-add">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lógica de validación de DUI duplicado con SweetAlert
+        const error = '[[${error}]]';
+        if (error && error.trim() !== '') {
+            Swal.fire({
+                title: 'Error',
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full'
+                }
+            });
+        }
+        
+        // Vista previa de la imagen al crear o editar
+        const imagenFile = document.getElementById('imagenFile');
+        const previewContainer = document.getElementById('imagen-preview-container');
+        const previewImage = document.getElementById('imagen-preview');
+
+        if (imagenFile) {
+            imagenFile.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewContainer.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

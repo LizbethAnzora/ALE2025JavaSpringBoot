@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title layout:fragment="title">Listado de Citas</title>
+</head>
+<body>
+<section layout:fragment="content" class="bg-gray-900 min-h-screen py-12">
+    <div th:if="${msg != null}">
+        <script>
+            Swal.fire({
+                title: "Éxito",
+                text: '[[ ${msg} ]]',
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full'
+                }
+            });
+        </script>
+    </div>
+    <div th:if="${error != null}">
+        <script>
+            Swal.fire({
+                title: "Error",
+                text: '[[ ${error} ]]',
+                icon: "error",
+                confirmButtonText: "Aceptar",
+                customClass: {
+                    popup: 'bg-gray-800 text-white',
+                    confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full'
+                }
+            });
+        </script>
+    </div>
+    <div class="container mx-auto px-4 max-w-7xl">
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <h4 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-calendar-check text-indigo-400 mr-3"></i>
+                    Gestión de Citas
+                </h4>
+                <a th:href="@{/citas/create}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-plus-circle mr-2"></i>Nueva Cita
+                </a>
+            </div>
+
+            <form th:action="@{/citas}" method="get" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-inner">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label for="nombrePaciente" class="block text-white mb-1">Nombre del paciente</label>
+                        <input type="text" id="nombrePaciente" name="nombrePaciente" th:value="${nombrePaciente}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="duiPaciente" class="block text-white mb-1">DUI del paciente</label>
+                        <input type="text" id="duiPaciente" name="duiPaciente" th:value="${duiPaciente}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="nombreMedico" class="block text-white mb-1">Nombre del médico</label>
+                        <input type="text" id="nombreMedico" name="nombreMedico" th:value="${nombreMedico}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="fechaCita" class="block text-white mb-1">Fecha de la cita</label>
+                        <input type="date" id="fechaCita" name="fechaCita" th:value="${#dates.format(fechaCita, 'yyyy-MM-dd')}" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-start space-x-4">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center">
+                        <i class="fas fa-search mr-2"></i> Buscar
+                    </button>
+                    <a th:href="@{/citas}" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center">
+                        <i class="fas fa-sync-alt mr-2"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+
+            <div class="overflow-x-auto rounded-lg shadow-inner">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="text-xs text-gray-100 uppercase bg-gray-700">
+                    <tr>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-user-injured mr-2"></i>Paciente</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-user-md mr-2"></i>Médico</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-calendar-alt mr-2"></i>Fecha</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-clock mr-2"></i>Hora</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-dollar-sign mr-2"></i>Costo</th>
+                        <th scope="col" class="py-3 px-6"><i class="fas fa-check-circle mr-2"></i>Estado</th>
+                        <th scope="col" class="py-3 px-6 text-center"><i class="fas fa-cogs mr-2"></i>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="cita : ${citas}" class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition duration-150 ease-in-out">
+                        <td th:text="${cita.paciente.nombre + ' ' + cita.paciente.apellido}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${cita.medico.nombre + ' ' + cita.medico.apellido}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${#dates.format(cita.fechaCita, 'dd-MM-yyyy')}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${#dates.format(cita.horaCita, 'HH:mm')}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${#numbers.formatDecimal(cita.costoConsulta, 1, 2, 'COMMA')}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td th:text="${cita.estado}" class="py-4 px-6 font-medium text-white whitespace-nowrap"></td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="inline-flex space-x-2">
+                                <a th:href="@{/citas/view/{id}(id=${cita.id})}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-eye mr-2"></i>Ver
+                                </a>
+                                <a th:href="@{/citas/edit/{id}(id=${cita.id})}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-pen mr-2"></i>Editar
+                                </a>
+                                <a th:href="@{/citas/delete/{id}(id=${cita.id})}" onclick="return confirmarEliminacion(this.href);" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-110 flex items-center">
+                                    <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${citas.isEmpty()}">
+                        <td colspan="7" class="py-6 px-6 text-center text-gray-500 font-medium">No se encontraron citas.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav th:if="${citasPaginadas != null and citasPaginadas.totalPages > 0}" class="mt-8">
+                <ul class="flex justify-center space-x-2">
+                    <li th:each="pageNum : ${pageNumbers}"
+                        class="page-item"
+                        th:classappend="${pageNum == citasPaginadas.number + 1} ? 'bg-indigo-600 text-white rounded-full' : 'bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600'">
+                        <a class="py-2 px-4 block transition duration-150"
+                           th:href="@{/citas(page=${pageNum}, size=${citasPaginadas.size}, nombrePaciente=${nombrePaciente}, duiPaciente=${duiPaciente}, nombreMedico=${nombreMedico}, fechaCita=${fechaCita})}"
+                           th:text="${pageNum}"></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<script layout:fragment="script-add">
+    function confirmarEliminacion(url) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#4b5563',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'bg-gray-800 text-white',
+                confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-bold rounded-full',
+                cancelButton: 'bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-full'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+        return false;
+    }
+</script>
+</body>
+</html>
